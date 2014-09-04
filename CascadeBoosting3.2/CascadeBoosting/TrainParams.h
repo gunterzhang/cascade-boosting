@@ -8,7 +8,7 @@ using namespace cv;
 const int MAX_CASCADE_STAGE_NUM = 30;
 const int MAX_ROUND_NUM = 1000;
 const int MAX_BIN_NUM = 100;
-const int MAX_NEG_SAMPLE_NUM = 25000;
+const int MAX_NEG_SAMPLE_NUM = 20000;
 const int MAX_LABEL_PER_IMAGE = 100;
 const int MAX_PATH_LEN = 255;
 

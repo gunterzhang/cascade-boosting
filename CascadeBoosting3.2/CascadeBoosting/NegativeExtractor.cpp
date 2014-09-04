@@ -139,6 +139,8 @@ int NegativeExtractor::detectImage(const Mat &image)
 	param.min_win_w = pt_params->neg_min_w_r * image.cols;
 	param.max_win_w = pt_params->neg_max_w_r * image.cols;
 
+	detector.setScanParams(&param);
+
 	const int MAX_DETECTION = 2000;
 	CB_RectT rects[MAX_DETECTION];
 
