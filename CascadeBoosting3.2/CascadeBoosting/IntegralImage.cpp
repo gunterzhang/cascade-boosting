@@ -271,7 +271,7 @@ int IntegralImage::compute(const uchar *pdata)
 	computeIntegralImage_0(pdata);
 	computeSquareIntegralImage_0(pdata);
 
-	if (type == SLANT_HAAR || type == UPRIGHT_SLANT_HAAR)
+	if ((type & SLANT_HAAR) > 0)
 	{
 		computeIntegralImage_45(pdata);
 		computeSquareIntegralImage_45(pdata);
@@ -298,12 +298,11 @@ int IntegralImage::load(FILE *fp)
 	count = fread(pt_intg_0, sizeof(pt_intg_0[0]), len, fp);
 	count = fread(pt_sq_intg_0, sizeof(pt_sq_intg_0[0]), len, fp);
 
-	if (type == SLANT_HAAR || type == UPRIGHT_SLANT_HAAR)
+	if ((type & SLANT_HAAR) > 0)
 	{
 		count = fread(pt_intg_45, sizeof(pt_intg_45[0]), len, fp);
 		count = fread(pt_sq_intg_45, sizeof(pt_sq_intg_45[0]), len, fp);
 	}
-
 	return 1;
 }
 
@@ -329,7 +328,7 @@ int IntegralImage::save(FILE *fp)
 	fwrite(pt_intg_0, sizeof(pt_intg_0[0]), len, fp);
 	fwrite(pt_sq_intg_0, sizeof(pt_sq_intg_0[0]), len, fp);
 
-	if (type == SLANT_HAAR || type == UPRIGHT_SLANT_HAAR)
+	if ((type & SLANT_HAAR) > 0)
 	{
 		fwrite(pt_intg_45, sizeof(pt_intg_45[0]), len, fp);
 		fwrite(pt_sq_intg_45, sizeof(pt_sq_intg_45[0]), len, fp);

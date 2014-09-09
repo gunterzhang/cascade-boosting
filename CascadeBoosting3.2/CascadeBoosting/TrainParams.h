@@ -22,7 +22,7 @@ const double MAX_OBJ_OVERLAP_Y = 0.4;
 
 typedef enum 
 {
-	UPRIGHT_HAAR = 1, SLANT_HAAR = 2, UPRIGHT_SLANT_HAAR = 3
+	UPRIGHT_HAAR = 1, SLANT_HAAR = 2, UPRIGHT_FAR_HAAR = 4
 }FeatureTypeE;
 
 

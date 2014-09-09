@@ -5,26 +5,29 @@
 const int HAAR_SHIFT_STEP_X = 2;
 const int HAAR_SHIFT_STEP_Y = 2;
 const int HAAR_SCALE_STEP = 2;
+const int FEATURE_MARGIN = 1;
+
 
 const double INV_AREA_R = 500.0;
 
 const int MAX_FEATURE_TYPE_NUM = 20;
 
 typedef enum {
-	HFT_X_AB = 0, 
-	HFT_Y_AB = 1, 
-	HFT_X_ABA = 2, 
-	HFT_Y_ABA = 3, 
-	HFT_X_ABBA = 4, 
+	HFT_X_AB = 0,
+	HFT_Y_AB = 1,
+	HFT_X_ABA = 2,
+	HFT_Y_ABA = 3,
+	HFT_X_ABBA = 4,
 	HFT_Y_ABBA = 5,
 	HFT_XY_ABA = 6,
 	HFT_XY_ABBA = 7,
-	HFT_L_AB = 8, 
-	HFT_R_AB = 9, 
-	HFT_L_ABA = 10, 
-	HFT_R_ABA = 11, 
-	HFT_L_ABBA = 12, 
-	HFT_R_ABBA = 13
+	HFT_L_AB = 8,
+	HFT_R_AB = 9,
+	HFT_L_ABA = 10,
+	HFT_R_ABA = 11,
+	HFT_L_ABBA = 12,
+	HFT_R_ABBA = 13,
+	HFT_A_B = 14
 } FeatureTypeT;
 
 typedef struct
@@ -57,6 +60,7 @@ private:
 	int extractFeature(const IntegralImage &intg, SubwinInfoT &subwin_info, const HaarFeatureInfoT &info);
 	int extractOneTypeFeatures(int is_extract_feature, HaarFeatureInfoT &info, float *pt_feature);
 	int extractOneTypeFeatures45(int is_extract_feature, HaarFeatureInfoT &info, float *pt_feature);
+	int extractOneTypeFeaturesAB(int is_extract_feature, HaarFeatureInfoT &info, float *pt_feature);
 	static int slantToRect(const CB_SlantT &slant, CB_RectangleT &rect, const CB_PointT &image_size);
 	static inline int isPointValid(const CB_PointT &point, const CB_PointT &image_size);
 
