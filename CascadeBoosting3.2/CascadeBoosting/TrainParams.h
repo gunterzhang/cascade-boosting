@@ -104,6 +104,7 @@ typedef struct
 	string model_path;
 
 	int feature_type;
+	int feature_abs;
 	int max_weak_learner_num;
 	int bin_num;
 	int stage_num;

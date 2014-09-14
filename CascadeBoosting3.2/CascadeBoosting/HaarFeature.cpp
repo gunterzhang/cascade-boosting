@@ -96,11 +96,13 @@ void HaarFeature::clearUp()
 }
 
 
-int HaarFeature::init(int w, int h, int type)
+int HaarFeature::init(int w, int h, int type, int is_abs)
 {
 	clearUp();
 
 	feature_types = type;
+	this->is_abs = is_abs;
+
 	template_w = w;
 	template_h = h;
 
@@ -142,6 +144,7 @@ int HaarFeature::getAllFeatureInfos(int is_extract_feature, FILE *fp, float *pt_
 	}
 
 	HaarFeatureInfoT info;
+	info.is_abs = is_abs;
 	info.tpl_size.x = template_w;
 	info.tpl_size.y = template_h;
 	info.pos2.x = 0;
@@ -195,7 +198,6 @@ int HaarFeature::getAllFeatureInfos(int is_extract_feature, FILE *fp, float *pt_
 	{
 		feature_num = feature_count;
 		printf("feature Num = %d\n", feature_num);
-		getchar();
 	}
 
 	return feature_num;
@@ -687,7 +689,11 @@ float HaarFeature::computeFeature(IntegralImage &intg, const SubwinInfoT &subwin
 	result = result / subwin.var;
 	result /= real_scale_square;
 
-	return fabs(result);
+	if (haar.is_abs == 1)
+	{
+		result = fabs(result);
+	}
+	return result;
 }
 
 

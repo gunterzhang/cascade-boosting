@@ -121,8 +121,6 @@ int Cascade::init(TrainParamsT &params)
 		return rst;
 	}
 
-	boosting.init(params.template_w, params.template_h, params.feature_type);
-
 	if (model.pt_weak_learners == NULL)
 	{
 		model.pt_weak_learners = new WeakLearner[params.max_weak_learner_num];
@@ -162,7 +160,8 @@ int Cascade::initModel()
 	{
 		WeakLearnerInfoT &info = model.pt_weak_learners[i].info;
 		HaarFeatureInfoT &haar_info = info.haar_info;
-		fscanf(fp, "%d %d %d %d %d %d %d %lf", &haar_info.type, 
+		fscanf(fp, "%d %d %d %d %d %d %d %d %lf", 
+			   &haar_info.type, &haar_info.is_abs,
 			   &haar_info.pos1.x, &haar_info.pos1.y,
 			   &haar_info.pos2.x, &haar_info.pos2.y,
 			   &haar_info.size.x, &haar_info.size.y, 
@@ -250,6 +249,11 @@ int Cascade::loadConfig(TrainParamsT &params)
 		{
 			fscanf(fp, "%d", &params.feature_type);
 			printf("FeatureType:     %d\n", params.feature_type);
+		}
+		else if (strcmp(tmp_str, "FeatureAbs:") == 0)
+		{
+			fscanf(fp, "%d", &params.feature_abs);
+			printf("FeatureAbs:      %d\n", params.feature_abs);
 		}
 		else if (strcmp(tmp_str, "ExtractPositive:") == 0)
 		{

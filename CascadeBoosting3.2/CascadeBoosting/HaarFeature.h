@@ -33,6 +33,7 @@ typedef enum {
 typedef struct
 {
 	FeatureTypeT type;
+	int is_abs;
 	CB_PointT pos1;
 	CB_PointT pos2;
 	CB_PointT size;
@@ -47,7 +48,7 @@ public:
 	HaarFeature(void);
 	~HaarFeature(void);
 
-	int init(int w, int h, int type);
+	int init(int w, int h, int type, int is_abs);
 	int getFeatureNum();
 	const float *extractBatchFeatures(FILE *fp);
 	int saveTrainingData(const unsigned char *pdata, const string &file_path);
@@ -77,6 +78,7 @@ private:
 	int sample_num;
 
 	int feature_types;
+	int is_abs;
 
 	CB_PointT feature_sizes[MAX_FEATURE_TYPE_NUM];
 	int feature_inv_ratio[MAX_FEATURE_TYPE_NUM];

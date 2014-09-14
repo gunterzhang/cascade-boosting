@@ -16,7 +16,8 @@ int WeakLearner::saveToFile(const string &file_path)
 {
 	FILE *fp = fopen(file_path.c_str(), "at");
 	HaarFeatureInfoT &haar_info = info.haar_info;
-	fprintf(fp, "%d %d %d %d %d %d %d %lf ", haar_info.type, 
+	fprintf(fp, "%d %d %d %d %d %d %d %d %lf ",
+			haar_info.type, haar_info.is_abs,
 		    haar_info.pos1.x, haar_info.pos1.y,
 		    haar_info.pos2.x, haar_info.pos2.y,	
 			haar_info.size.x, haar_info.size.y, 
@@ -31,6 +32,31 @@ int WeakLearner::saveToFile(const string &file_path)
 	
 	fclose(fp);
 
+	return 1;
+}
+
+int WeakLearner::loadFromFile(const FILE *fp, int template_w, int template_h)
+{
+	HaarFeatureInfoT &haar_info = info.haar_info;
+	fscanf((FILE *)fp, "%d %d %d %d %d %d %d %d %lf ",
+			&haar_info.type, &haar_info.is_abs,
+		    &haar_info.pos1.x, &haar_info.pos1.y,
+		    &haar_info.pos2.x, &haar_info.pos2.y,	
+			&haar_info.size.x, &haar_info.size.y, 
+			&haar_info.inv_area);
+
+	fscanf((FILE*)fp, "%d %lf %lf %lf ", 
+		   &info.bin_num, &info.bin_min, &info.bin_max, &info.bin_width);
+
+	for (int i=0; i<info.bin_num; i++)
+	{
+		fscanf((FILE *)fp, "%lf ", &(info.output[i]));
+	}
+	fscanf((FILE*)fp, "%lf\n", &info.classify_thd);
+
+	haar_info.tpl_size.x = template_w;
+	haar_info.tpl_size.y = template_h;
+	
 	return 1;
 }
 

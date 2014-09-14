@@ -24,7 +24,6 @@ public:
 	Boosting(void);
 	~Boosting(void);
 
-	int init(int w, int h, int type);
 	int init(const TrainParamsT &train_params);
 	int trainNewStage(CascadeModelT &model);
 	int trainWeakLearner(CascadeModelT &model);

@@ -68,22 +68,7 @@ int Detector::init(const string &model_path)
 
 	for (int i=0; i<model.weak_learner_num; i++)
 	{
-		WeakLearnerInfoT &info = model.pt_weak_learners[i].info;
-		HaarFeatureInfoT &haar_info = info.haar_info;
-		fscanf(fp, "%d %d %d %d %d %d %d %lf", &haar_info.type, 
-			   &haar_info.pos1.x, &haar_info.pos1.y,
-			   &haar_info.pos2.x, &haar_info.pos2.y,
-			   &haar_info.size.x, &haar_info.size.y, 
-			   &haar_info.inv_area);
-
-		haar_info.tpl_size.x = model.template_w;
-		haar_info.tpl_size.y = model.template_h;
-		fscanf(fp, "%d %lf %lf %lf ", &info.bin_num, &info.bin_min, &info.bin_max, &info.bin_width);
-		for (int i=0; i<info.bin_num; i++)
-		{
-			fscanf(fp, "%lf ", &info.output[i]);
-		}
-		fscanf(fp, "%lf\n", &info.classify_thd);
+		model.pt_weak_learners[i].loadFromFile(fp, model.template_w, model.template_h);
 	}
 
 	fclose(fp);
@@ -220,11 +205,11 @@ int Detector::detect(IntegralImage &intg, int max_num, CB_RectT *pt_rects, int &
 			subwin.win_size.y = pt_model->template_h * cur_scan_scale;
 			continue;
 		}
-		subwin.win_pos.y = 1;
-		while (subwin.win_pos.y + subwin.win_size.y < image_h)
+		subwin.win_pos.y = param.hot_rect.top;
+		while (subwin.win_pos.y + subwin.win_size.y < param.hot_rect.bottom - 1)
 		{
-			subwin.win_pos.x = 1;
-			while (subwin.win_pos.x + subwin.win_size.x < image_w)
+			subwin.win_pos.x = param.hot_rect.left;
+			while (subwin.win_pos.x + subwin.win_size.x < param.hot_rect.right - 1)
 			{
 				subwin_count++;
 				if (test(intg, subwin) <= 0)

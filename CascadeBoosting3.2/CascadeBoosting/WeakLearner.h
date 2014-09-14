@@ -23,6 +23,7 @@ public:
 	double test(float feature_value);
 	double test(const IntegralImage &intg, const SubwinInfoT &subwin);
 	int saveToFile(const string &file_path);
+	int loadFromFile(const FILE *fp, int template_w, int template_h);
 
 public:
 	WeakLearnerInfoT info;

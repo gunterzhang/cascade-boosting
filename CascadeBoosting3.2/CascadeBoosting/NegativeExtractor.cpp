@@ -138,6 +138,10 @@ int NegativeExtractor::detectImage(const Mat &image)
 	param.scan_shift_step = scan_shift_step;
 	param.min_win_w = pt_params->neg_min_w_r * image.cols;
 	param.max_win_w = pt_params->neg_max_w_r * image.cols;
+	param.hot_rect.left = pt_params->neg_start_x_r * image.cols;
+	param.hot_rect.right = pt_params->neg_end_x_r * image.cols;
+	param.hot_rect.top = pt_params->neg_start_y_r * image.rows;
+	param.hot_rect.bottom = pt_params->neg_end_y_r * image.rows;
 
 	detector.setScanParams(&param);
 
@@ -154,25 +158,9 @@ int NegativeExtractor::detectImage(const Mat &image)
 
 	for (int i=0; i<num; i++)
 	{
-		if ( rects[i].top < pt_params->neg_start_y_r * h ||
-			 rects[i].bottom > pt_params->neg_end_y_r * h ||
-			 rects[i].left < pt_params->neg_start_x_r * w ||
-			 rects[i].right > pt_params->neg_end_x_r * w )
-		{
-			continue;
-		}
-
 		int rect_w = rects[i].right - rects[i].left;
 		int rect_h = rects[i].bottom - rects[i].top;
 		
-		if ( rect_w < pt_params->neg_min_w_r * w || 
-			 rect_w > pt_params->neg_max_w_r * w ||
-			 rect_h < pt_params->neg_min_h_r * h || 
-			 rect_h > pt_params->neg_max_h_r * h )
-		{
-			continue;
-		}
-
 		if (isRectOverlapLabels(rects[i]) == true)
 		{
 			continue;
@@ -190,7 +178,7 @@ int NegativeExtractor::detectImage(const Mat &image)
 		image(rect).copyTo(sub_image);
 
 		char file_name[200];
-		sprintf(file_name, "%s%08d%s.jpg", pt_params->extracted_negative_dir.c_str(), total_negative_count, cur_neg_name.c_str());
+		sprintf(file_name, "%s%08d_%s.jpg", pt_params->extracted_negative_dir.c_str(), total_negative_count, cur_neg_name.c_str());
 		imwrite(file_name, sub_image);
 		total_negative_count++;
 		count++;
@@ -233,7 +221,7 @@ bool NegativeExtractor::isRectsOverlap(CB_RectT rect1, CB_RectT rect2)
 	int right = (rect1.right > rect2.right) ? rect1.right:rect2.right;
 
 	int overlap_x = (w1 + w2) - (right - left);
-	if ((double)overlap_x / w2 < 0.5) 
+	if ((double)overlap_x / w2 < 0.4) 
 		return false;
 
 	int h1 = (rect1.bottom - rect1.top + 1);
@@ -242,7 +230,7 @@ bool NegativeExtractor::isRectsOverlap(CB_RectT rect1, CB_RectT rect2)
 	int bottom = (rect1.bottom > rect2.bottom) ? rect1.bottom:rect2.bottom;
 
 	int overlap_y = (h1 + h2) - (bottom - top);
-	if ((double)overlap_y / h2 < 0.5) 
+	if ((double)overlap_y / h2 < 0.4) 
 		return false;
 
 	return true;
@@ -267,8 +255,8 @@ bool NegativeExtractor::loadLabelsFromFile(const string &file_path)
 	{
 		for (int i=0; i<label_num; i++)
 		{
-			char file_name[100];
-			fscanf(fp, "%s", file_name);
+			//char file_name[100];
+			//fscanf(fp, "%s", file_name);
 
 			char type[100];
 			fscanf(fp, "%s", type);

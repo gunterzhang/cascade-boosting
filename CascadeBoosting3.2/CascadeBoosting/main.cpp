@@ -43,10 +43,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	printf("-------Configure Infos-------\n");
-	printf("Class Label:     %s\n", params.class_label.c_str());
-	printf("Work Space:      %s\n", params.work_dir.c_str());
+	printf("Class Label:  %s\n", params.class_label.c_str());
+	printf("Work Space:   %s\n", params.work_dir.c_str());
 	
-	//Tester::testIntg45();
 	//detect(params);
 	Cascade cascade;
 	cascade.train(params);
@@ -86,8 +85,8 @@ void detect(const TrainParamsT &params)
 	DetectorParamT param;
 	param.min_win_w = 60;
 	param.max_win_w = 250;
-	param.resize_w = 400;
-	param.resize_h = 300;
+	param.resize_w = 0;
+	param.resize_h = 0;
 	param.scan_shift_step = 2;
 	param.scan_scale_step = 1.2;
 	param.hot_rect.top = params.neg_start_y_r * 100;

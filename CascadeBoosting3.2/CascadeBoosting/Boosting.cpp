@@ -94,18 +94,13 @@ int Boosting::clearUp()
 }
 
 
-int Boosting::init(int w, int h, int type)
-{
-	haar.init(w, h, type);
-	return 1;
-}
-
-
 int Boosting::init(const TrainParamsT &params)
 {
 	clearUp();
 	
 	this->pt_params = (TrainParamsT *)&params;
+
+	haar.init(params.template_w, params.template_h, params.feature_type, params.feature_abs);
 	
 	int max_pos_sample_num = params.positive_num;
 	int max_neg_sample_num = max(params.min_negative_num, params.positive_num) + params.max_neg_per_image * 2;
