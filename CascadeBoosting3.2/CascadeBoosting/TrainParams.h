@@ -12,9 +12,9 @@ const int MAX_NEG_SAMPLE_NUM = 20000;
 const int MAX_LABEL_PER_IMAGE = 100;
 const int MAX_PATH_LEN = 255;
 
-const int MIN_MEAN = 10;
+const int MIN_MEAN = 30;
 const int MAX_MEAN = 240;
-const int MIN_VAR = 5;
+const int MIN_VAR = 10;
 const int MAX_VAR = 200;
 
 const double MAX_OBJ_OVERLAP_X = 0.4;

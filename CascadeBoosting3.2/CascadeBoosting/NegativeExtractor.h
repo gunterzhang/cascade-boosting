@@ -38,6 +38,7 @@ private:
 
 	long long total_negative_count;
 	long long total_count;
+	long long detect_count;
 
 	string postive_label;
 

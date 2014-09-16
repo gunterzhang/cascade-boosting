@@ -18,8 +18,8 @@ int NegativeExtractor::init(TrainParamsT &params)
 {
 	pt_params = &params;
 
-	scan_shift_step = params.template_w;
-	scan_scale_step = 2.0;
+	scan_shift_step = params.template_w * 2;
+	scan_scale_step = 3.0;
 	total_negative_count = 0;
 
 	pool_image_idx = 0;
@@ -64,6 +64,7 @@ int NegativeExtractor::extractSamples(int needed_num, const CascadeModelT *model
 	detector.init((CascadeModelT *)model);
 
 	int added_sum = 0;
+	detect_count = 0;
 	total_count = 0;
 
 	while (needed_num > 0)
@@ -111,7 +112,7 @@ int NegativeExtractor::extractSamples(int needed_num, const CascadeModelT *model
 				scan_shift_step = 1;
 			}
 
-			scan_scale_step -= 0.2;
+			scan_scale_step -= 0.25;
 			if (scan_scale_step < 1.15)
 			{
 				scan_scale_step = 1.15;
@@ -119,10 +120,10 @@ int NegativeExtractor::extractSamples(int needed_num, const CascadeModelT *model
 		}
 	}
 
-	printf("false alarm = %1.10lf\n", (double)added_sum / total_count);
+	printf("false alarm = %1.10lf\n", (double)detect_count / total_count);
 
 	FILE *fp = fopen(pt_params->train_log_path.c_str(), "at");
-	fprintf(fp, " false alarm:%d-%d = %1.10lf\n", added_sum, total_count, (double)added_sum / total_count);
+	fprintf(fp, " false alarm:%d-%d = %1.10lf\n", detect_count, total_count, (double)detect_count / total_count);
 	fclose(fp);
 
 	return added_sum;
@@ -153,6 +154,7 @@ int NegativeExtractor::detectImage(const Mat &image)
 	total_count += subwin_count;
 
 	int count = 0;
+	int false_alarm_count = 0;
 	int w = image.cols;
 	int h = image.rows;
 
@@ -162,6 +164,12 @@ int NegativeExtractor::detectImage(const Mat &image)
 		int rect_h = rects[i].bottom - rects[i].top;
 		
 		if (isRectOverlapLabels(rects[i]) == true)
+		{
+			continue;
+		}
+		false_alarm_count++;
+
+		if (count >= pt_params->max_neg_per_image) 
 		{
 			continue;
 		}
@@ -182,11 +190,9 @@ int NegativeExtractor::detectImage(const Mat &image)
 		imwrite(file_name, sub_image);
 		total_negative_count++;
 		count++;
-		if (count >= pt_params->max_neg_per_image) 
-		{
-			return count;
-		}
 	}
+
+	detect_count += false_alarm_count;
 	return count;
 }
 
@@ -221,7 +227,7 @@ bool NegativeExtractor::isRectsOverlap(CB_RectT rect1, CB_RectT rect2)
 	int right = (rect1.right > rect2.right) ? rect1.right:rect2.right;
 
 	int overlap_x = (w1 + w2) - (right - left);
-	if ((double)overlap_x / w2 < 0.4) 
+	if ((double)overlap_x / w2 < 0.5) 
 		return false;
 
 	int h1 = (rect1.bottom - rect1.top + 1);
@@ -230,7 +236,7 @@ bool NegativeExtractor::isRectsOverlap(CB_RectT rect1, CB_RectT rect2)
 	int bottom = (rect1.bottom > rect2.bottom) ? rect1.bottom:rect2.bottom;
 
 	int overlap_y = (h1 + h2) - (bottom - top);
-	if ((double)overlap_y / h2 < 0.4) 
+	if ((double)overlap_y / h2 < 0.5) 
 		return false;
 
 	return true;
@@ -294,7 +300,7 @@ bool NegativeExtractor::loadLabelsFromFile(const string &file_path)
 			}
 			int w = abs(rect.right - rect.left);
 			int h = abs(rect.bottom - rect.top);
-			rect.top += 0.5 * h;
+			//rect.top += 0.5 * h;
 		}
 		total_label_num += label_num;
 	}
