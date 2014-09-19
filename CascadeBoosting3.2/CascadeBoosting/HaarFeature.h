@@ -4,14 +4,16 @@
 
 const int HAAR_SHIFT_STEP_X = 2;
 const int HAAR_SHIFT_STEP_Y = 2;
-const int HAAR_SCALE_STEP = 2;
+const int HAAR_SCALE_STEP_X = 3;
+const int HAAR_SCALE_STEP_Y = 2;
 const int FEATURE_MARGIN = 1;
 
 
 const double INV_AREA_R = 500.0;
 
-const int MAX_FEATURE_TYPE_NUM = 20;
+const int MAX_FEATURE_TYPE_NUM = 200;
 
+const int HFT_STEP1 = 100;
 typedef enum {
 	HFT_X_AB = 0,
 	HFT_Y_AB = 1,
@@ -27,7 +29,23 @@ typedef enum {
 	HFT_R_ABA = 11,
 	HFT_L_ABBA = 12,
 	HFT_R_ABBA = 13,
-	HFT_A_B = 14
+	HFT_A_B = 14,
+
+	HFT_SQ_X_AB = HFT_X_AB + HFT_STEP1,
+	HFT_SQ_Y_AB = HFT_Y_AB + HFT_STEP1,
+	HFT_SQ_X_ABA = HFT_X_ABA + HFT_STEP1,
+	HFT_SQ_Y_ABA = HFT_Y_ABA + HFT_STEP1,
+	HFT_SQ_X_ABBA = HFT_X_ABBA + HFT_STEP1,
+	HFT_SQ_Y_ABBA = HFT_Y_ABBA + HFT_STEP1,
+	HFT_SQ_XY_ABA = HFT_XY_ABA + HFT_STEP1,
+	HFT_SQ_XY_ABBA = HFT_XY_ABBA + HFT_STEP1,
+	HFT_SQ_L_AB = HFT_L_AB + HFT_STEP1,
+	HFT_SQ_R_AB = HFT_R_AB + HFT_STEP1,
+	HFT_SQ_L_ABA = HFT_L_ABA + HFT_STEP1,
+	HFT_SQ_R_ABA = HFT_R_ABA + HFT_STEP1,
+	HFT_SQ_L_ABBA = HFT_L_ABBA + HFT_STEP1,
+	HFT_SQ_R_ABBA = HFT_R_ABBA + HFT_STEP1,
+	HFT_SQ_A_B = HFT_A_B + HFT_STEP1
 } FeatureTypeT;
 
 typedef struct

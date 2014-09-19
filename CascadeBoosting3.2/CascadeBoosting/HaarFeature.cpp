@@ -71,6 +71,44 @@ HaarFeature::HaarFeature(void)
 	feature_sizes[HFT_A_B].y = 1;
 	feature_inv_ratio[HFT_A_B] = 1;
 
+	//HFT_SQ_X_Y
+	feature_sizes[HFT_SQ_X_AB].x = 2;
+	feature_sizes[HFT_SQ_X_AB].y = 1;
+	feature_inv_ratio[HFT_SQ_X_AB] = 1;
+	
+	feature_sizes[HFT_SQ_Y_AB].x = 1;
+	feature_sizes[HFT_SQ_Y_AB].y = 2;
+	feature_inv_ratio[HFT_SQ_Y_AB] = 1;
+
+	feature_sizes[HFT_SQ_X_ABA].x = 3;
+	feature_sizes[HFT_SQ_X_ABA].y = 1;
+	feature_inv_ratio[HFT_SQ_X_ABA] = 2;
+	
+	feature_sizes[HFT_SQ_Y_ABA].x = 1;
+	feature_sizes[HFT_SQ_Y_ABA].y = 3;
+	feature_inv_ratio[HFT_SQ_Y_ABA] = 2;
+
+	feature_sizes[HFT_SQ_X_ABBA].x = 4;
+	feature_sizes[HFT_SQ_X_ABBA].y = 1;
+	feature_inv_ratio[HFT_SQ_X_ABBA] = 2;
+	
+	feature_sizes[HFT_SQ_Y_ABBA].x = 1;
+	feature_sizes[HFT_SQ_Y_ABBA].y = 4;
+	feature_inv_ratio[HFT_SQ_Y_ABBA] = 2;
+
+	feature_sizes[HFT_SQ_XY_ABA].x = 3;
+	feature_sizes[HFT_SQ_XY_ABA].y = 3;
+	feature_inv_ratio[HFT_SQ_XY_ABA] = 8;
+
+	feature_sizes[HFT_SQ_XY_ABBA].x = 4;
+	feature_sizes[HFT_SQ_XY_ABBA].y = 4;
+	feature_inv_ratio[HFT_SQ_XY_ABBA] = 12;
+
+	//HFT_SQ_A_B
+	feature_sizes[HFT_SQ_A_B].x = 1;
+	feature_sizes[HFT_SQ_A_B].y = 1;
+	feature_inv_ratio[HFT_SQ_A_B] = 1;
+
 }
 
 
@@ -172,6 +210,27 @@ int HaarFeature::getAllFeatureInfos(int is_extract_feature, FILE *fp, float *pt_
 		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
 	}
 
+
+	if ((feature_types & UPRIGHT_SQ_HAAR) > 0)
+	{
+		info.type = HFT_SQ_X_AB; 
+		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
+		info.type = HFT_SQ_Y_AB;
+		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
+		info.type = HFT_SQ_X_ABA; 
+		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
+		info.type = HFT_SQ_Y_ABA;
+		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
+		info.type = HFT_SQ_X_ABBA; 
+		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
+		info.type = HFT_SQ_Y_ABBA;
+		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
+		info.type = HFT_SQ_XY_ABA; 
+		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
+		info.type = HFT_SQ_XY_ABBA;
+		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
+	}
+
 	if ((feature_types & SLANT_HAAR) > 0)
 	{
 		info.type = HFT_L_AB; 
@@ -194,10 +253,17 @@ int HaarFeature::getAllFeatureInfos(int is_extract_feature, FILE *fp, float *pt_
 		extractOneTypeFeaturesAB(is_extract_feature, info, pt_feature);
 	}
 
+	if ((feature_types & UPRIGHT_SQ_FAR_HAAR) > 0)
+	{
+		info.type = HFT_SQ_A_B; 
+		extractOneTypeFeaturesAB(is_extract_feature, info, pt_feature);
+	}
+
 	if (is_extract_feature < 0)
 	{
 		feature_num = feature_count;
 		printf("feature Num = %d\n", feature_num);
+		getchar();
 	}
 
 	return feature_num;
@@ -233,9 +299,9 @@ int HaarFeature::extractOneTypeFeatures(int is_extract_feature, HaarFeatureInfoT
 						*(pt_feature + feature_count) = extractFeature(pt_feature_infos[feature_count]);
 					}
 					feature_count++;
-					info.size.x += HAAR_SCALE_STEP;
+					info.size.x += HAAR_SCALE_STEP_X;
 				}
-				info.size.y += HAAR_SCALE_STEP;
+				info.size.y += HAAR_SCALE_STEP_Y;
 			}
 			info.pos1.x += HAAR_SHIFT_STEP_X;
 		}
@@ -270,7 +336,7 @@ int HaarFeature::extractOneTypeFeatures45(int is_extract_feature, HaarFeatureInf
 					int result = slantToRect(slant, rect, image_size);
 					if (result == 0)
 					{
-						info.size.x += HAAR_SCALE_STEP;
+						info.size.x += HAAR_SCALE_STEP_X;
 						continue;
 					}
 					if (is_extract_feature == 0)
@@ -283,9 +349,9 @@ int HaarFeature::extractOneTypeFeatures45(int is_extract_feature, HaarFeatureInf
 						*(pt_feature + feature_count) = extractFeature(pt_feature_infos[feature_count]);
 					}
 					feature_count++;
-					info.size.x += HAAR_SCALE_STEP;
+					info.size.x += HAAR_SCALE_STEP_X;
 				}
-				info.size.y += HAAR_SCALE_STEP;
+				info.size.y += HAAR_SCALE_STEP_Y;
 			}
 			info.pos1.x += HAAR_SHIFT_STEP_X;
 		}
@@ -347,9 +413,9 @@ int HaarFeature::extractOneTypeFeaturesAB(int is_extract_feature, HaarFeatureInf
 						info.pos2.y += HAAR_SHIFT_STEP_Y * 2;
 						feature_count++;
 					}
-					info.size.x += HAAR_SCALE_STEP;
+					info.size.x += HAAR_SCALE_STEP_X;
 				}
-				info.size.y += HAAR_SCALE_STEP;
+				info.size.y += HAAR_SCALE_STEP_Y;
 			}
 			info.pos1.x += HAAR_SHIFT_STEP_X;
 		}
@@ -393,303 +459,480 @@ float HaarFeature::computeFeature(IntegralImage &intg, const SubwinInfoT &subwin
 	double real_scale_square = (double)(haar_feature.size.x * haar_feature.size.y) / (haar.size.x * haar.size.y);
 
 	double result;
-	if (haar_feature.type == HFT_X_AB)
+	switch (haar_feature.type)
 	{
-		int x_left = cur_scan_pos_x + haar_feature.pos1.x;
-		int x_middle = x_left + haar_feature.size.x - 1;
-		int x_right = x_middle + haar_feature.size.x;
-		int y_top = cur_scan_pos_y + haar_feature.pos1.y;
-		int y_bottom = y_top + haar_feature.size.y - 1;
+	case HFT_X_AB:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_middle = x_left + haar_feature.size.x - 1;
+			int x_right = x_middle + haar_feature.size.x;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_bottom = y_top + haar_feature.size.y - 1;
 
-		CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
-		CB_RectT rect2 = {x_middle+1, x_right, y_top, y_bottom};
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_middle+1, x_right, y_top, y_bottom};
 
-		double result1 = intg.getRectValue_0(rect1);
-		double result2 = intg.getRectValue_0(rect2);
-		result = result1 - 2 * result2;
-	}
-	else if (haar_feature.type == HFT_Y_AB)
-	{
-		int x_left = cur_scan_pos_x + haar_feature.pos1.x;
-		int x_right = x_left + haar_feature.size.x - 1;
-		int y_top = cur_scan_pos_y + haar_feature.pos1.y;
-		int y_middle = y_top + haar_feature.size.y - 1;
-		int y_bottom = y_middle + haar_feature.size.y;
+			double result1 = intg.getRectValue_0(rect1);
+			double result2 = intg.getRectValue_0(rect2);
+			result = result1 - 2 * result2;
+			break;
+		}
+	case HFT_Y_AB:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_right = x_left + haar_feature.size.x - 1;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_middle = y_top + haar_feature.size.y - 1;
+			int y_bottom = y_middle + haar_feature.size.y;
 		
-		CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
-		CB_RectT rect2 = {x_left, x_right, y_middle+1, y_bottom};
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_left, x_right, y_middle+1, y_bottom};
 
-		double result1 = intg.getRectValue_0(rect1);
-		double result2 = intg.getRectValue_0(rect2);
-		result = result1 - 2 * result2;
+			double result1 = intg.getRectValue_0(rect1);
+			double result2 = intg.getRectValue_0(rect2);
+			result = result1 - 2 * result2;
+			break;
+		}
+	case HFT_X_ABA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_middleL = x_left + haar_feature.size.x - 1;
+			int x_middleR = x_middleL + haar_feature.size.x;
+			int x_right = x_middleR + haar_feature.size.x;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_bottom = y_top + haar_feature.size.y - 1;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_middleL + 1, x_middleR, y_top, y_bottom};
+
+			double result1 = intg.getRectValue_0(rect1); 
+			double result2 = intg.getRectValue_0(rect2);
+			result = result1 - 3 * result2;
+			break;
+		}
+	case HFT_Y_ABA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_right = x_left + haar_feature.size.x - 1;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_middleT = y_top + haar_feature.size.y - 1;
+			int y_middleB = y_middleT + haar_feature.size.y;
+			int y_bottom = y_middleB + haar_feature.size.y;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_left, x_right, y_middleT + 1, y_middleB};
+
+			double result1 = intg.getRectValue_0(rect1);
+			double result2 = intg.getRectValue_0(rect2);
+			result = result1 - 3 * result2;
+			break;
+		}
+	case HFT_X_ABBA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_middleL = x_left + haar_feature.size.x - 1;
+			int x_middleR = x_middleL + haar_feature.size.x * 2;
+			int x_right = x_middleR + haar_feature.size.x;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_bottom = y_top + haar_feature.size.y - 1;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_middleL + 1, x_middleR, y_top, y_bottom};
+
+			double result1 = intg.getRectValue_0(rect1); 
+			double result2 = intg.getRectValue_0(rect2);
+			result = result1 - 2 * result2;
+			break;
+		}
+	case HFT_Y_ABBA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_right = x_left + haar_feature.size.x - 1;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_middleT = y_top + haar_feature.size.y - 1;
+			int y_middleB = y_middleT + haar_feature.size.y * 2;
+			int y_bottom = y_middleB + haar_feature.size.y;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_left, x_right, y_middleT + 1, y_middleB};
+
+			double result1 = intg.getRectValue_0(rect1);
+			double result2 = intg.getRectValue_0(rect2);
+			result = result1 - 2 * result2;
+			break;
+		}
+	case HFT_XY_ABA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_middleL = x_left + haar_feature.size.x - 1;
+			int x_middleR = x_middleL + haar_feature.size.x;
+			int x_right = x_middleR + haar_feature.size.x;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_middleT = y_top + haar_feature.size.y - 1;
+			int y_middleB = y_middleT + haar_feature.size.y;
+			int y_bottom = y_middleB + haar_feature.size.y;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_middleL + 1, x_middleR, y_middleT + 1, y_middleB};
+
+			double result1 = intg.getRectValue_0(rect1);
+			double result2 = intg.getRectValue_0(rect2);
+			result = result1 - 9 * result2;
+			break;
+		}
+	case HFT_XY_ABBA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_middleL = x_left + haar_feature.size.x - 1;
+			int x_middleR = x_middleL + haar_feature.size.x * 2;
+			int x_right = x_middleR + haar_feature.size.x;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_middleT = y_top + haar_feature.size.y - 1;
+			int y_middleB = y_middleT + haar_feature.size.y * 2;
+			int y_bottom = y_middleB + haar_feature.size.y;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_middleL + 1, x_middleR, y_middleT + 1, y_middleB};
+
+			double result1 = intg.getRectValue_0(rect1);
+			double result2 = intg.getRectValue_0(rect2);
+			result = result1 - 4 * result2;
+			break;
+		}
+	case HFT_L_AB:
+		{
+			int x = cur_scan_pos_x + haar_feature.pos1.x;
+			int y = cur_scan_pos_y + haar_feature.pos1.y;
+			CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect1;
+			slantToRect(slant1, rect1, subwin.image_size);
+
+			x = rect1.left.x;
+			y = rect1.left.y;
+			CB_SlantT slant2 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect2;
+			slantToRect(slant2, rect2, subwin.image_size);
+
+			double result1 = intg.getRectValue_45(rect1);
+			double result2 = intg.getRectValue_45(rect2);
+
+			result = result1 - result2;
+			break;
+		}
+	case HFT_R_AB:
+		{
+			int x = cur_scan_pos_x + haar_feature.pos1.x;
+			int y = cur_scan_pos_y + haar_feature.pos1.y;
+			CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect1;
+			slantToRect(slant1, rect1, subwin.image_size);
+
+			x = rect1.right.x;
+			y = rect1.right.y;
+			CB_SlantT slant2 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect2;
+			slantToRect(slant2, rect2, subwin.image_size);
+
+			double result1 = intg.getRectValue_45(rect1);
+			double result2 = intg.getRectValue_45(rect2);
+
+			result = result1 - result2;
+			break;
+		}
+	case HFT_L_ABA:
+		{
+			int x = cur_scan_pos_x + haar_feature.pos1.x;
+			int y = cur_scan_pos_y + haar_feature.pos1.y;
+			CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect1;
+			slantToRect(slant1, rect1, subwin.image_size);
+
+			x = rect1.left.x;
+			y = rect1.left.y;
+			CB_SlantT slant2 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect2;
+			slantToRect(slant2, rect2, subwin.image_size);
+
+			x = rect2.left.x;
+			y = rect2.left.y;
+			CB_SlantT slant3 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect3;
+			slantToRect(slant3, rect3, subwin.image_size);
+
+			double result1 = intg.getRectValue_45(rect1);
+			double result2 = intg.getRectValue_45(rect2);
+			double result3 = intg.getRectValue_45(rect3);
+
+			result = result1 + result3 - 2 * result2;
+			break;
+		}
+	case HFT_R_ABA:
+		{
+			int x = cur_scan_pos_x + haar_feature.pos1.x;
+			int y = cur_scan_pos_y + haar_feature.pos1.y;
+			CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect1;
+			slantToRect(slant1, rect1, subwin.image_size);
+
+			x = rect1.right.x;
+			y = rect1.right.y;
+			CB_SlantT slant2 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect2;
+			slantToRect(slant2, rect2, subwin.image_size);
+
+			x = rect2.right.x;
+			y = rect2.right.y;
+			CB_SlantT slant3 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect3;
+			slantToRect(slant3, rect3, subwin.image_size);
+
+			double result1 = intg.getRectValue_45(rect1);
+			double result2 = intg.getRectValue_45(rect2);
+			double result3 = intg.getRectValue_45(rect3);
+
+			result = result1 + result3 - 2 * result2;
+			break;
+		}
+	case HFT_L_ABBA:
+		{
+			int x = cur_scan_pos_x + haar_feature.pos1.x;
+			int y = cur_scan_pos_y + haar_feature.pos1.y;
+			CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect1;
+			slantToRect(slant1, rect1, subwin.image_size);
+
+			x = rect1.left.x;
+			y = rect1.left.y;
+			CB_SlantT slant2 = {x, y, haar_feature.size.x * 2, haar_feature.size.y};
+			CB_RectangleT rect2;
+			slantToRect(slant2, rect2, subwin.image_size);
+
+			x = rect2.left.x;
+			y = rect2.left.y;
+			CB_SlantT slant3 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect3;
+			slantToRect(slant3, rect3, subwin.image_size);
+
+			double result1 = intg.getRectValue_45(rect1);
+			double result2 = intg.getRectValue_45(rect2);
+			double result3 = intg.getRectValue_45(rect3);
+
+			result = result1 + result3 - result2;
+			break;
+		}
+	case HFT_R_ABBA:
+		{
+			int x = cur_scan_pos_x + haar_feature.pos1.x;
+			int y = cur_scan_pos_y + haar_feature.pos1.y;
+			CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect1;
+			slantToRect(slant1, rect1, subwin.image_size);
+
+			x = rect1.right.x;
+			y = rect1.right.y;
+			CB_SlantT slant2 = {x, y, haar_feature.size.x, haar_feature.size.y * 2};
+			CB_RectangleT rect2;
+			slantToRect(slant2, rect2, subwin.image_size);
+
+			x = rect2.right.x;
+			y = rect2.right.y;
+			CB_SlantT slant3 = {x, y, haar_feature.size.x, haar_feature.size.y};
+			CB_RectangleT rect3;
+			slantToRect(slant3, rect3, subwin.image_size);
+
+			double result1 = intg.getRectValue_45(rect1);
+			double result2 = intg.getRectValue_45(rect2);
+			double result3 = intg.getRectValue_45(rect3);
+
+			result = result1 + result3 - result2;
+			break;
+		}
+	case HFT_A_B:
+		{
+			int x_left1 = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_right1 = x_left1 + haar_feature.size.x - 1;
+			int y_top1 = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_bottom1 = y_top1 + haar_feature.size.y - 1;
+
+			int x_left2 = cur_scan_pos_x + haar_feature.pos2.x;
+			int x_right2 = x_left2 + haar_feature.size.x - 1;
+			int y_top2 = cur_scan_pos_y + haar_feature.pos2.y;
+			int y_bottom2 = y_top2 + haar_feature.size.y - 1;
+
+			CB_RectT rect1 = {x_left1, x_right1, y_top1, y_bottom1};
+			CB_RectT rect2 = {x_left2, x_right2, y_top2, y_bottom2};
+
+			double result1 = intg.getRectValue_0(rect1);
+			double result2 = intg.getRectValue_0(rect2);
+			result = result1 - result2;
+			break;
+		}
+	case HFT_SQ_X_AB:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_middle = x_left + haar_feature.size.x - 1;
+			int x_right = x_middle + haar_feature.size.x;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_bottom = y_top + haar_feature.size.y - 1;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_middle+1, x_right, y_top, y_bottom};
+
+			double result1 = intg.getRectSqValue_0(rect1);
+			double result2 = intg.getRectSqValue_0(rect2);
+			result = result1 - 2 * result2;
+			break;
+		}
+	case HFT_SQ_Y_AB:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_right = x_left + haar_feature.size.x - 1;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_middle = y_top + haar_feature.size.y - 1;
+			int y_bottom = y_middle + haar_feature.size.y;
+		
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_left, x_right, y_middle+1, y_bottom};
+
+			double result1 = intg.getRectSqValue_0(rect1);
+			double result2 = intg.getRectSqValue_0(rect2);
+			result = result1 - 2 * result2;
+			break;
+		}
+	case HFT_SQ_X_ABA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_middleL = x_left + haar_feature.size.x - 1;
+			int x_middleR = x_middleL + haar_feature.size.x;
+			int x_right = x_middleR + haar_feature.size.x;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_bottom = y_top + haar_feature.size.y - 1;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_middleL + 1, x_middleR, y_top, y_bottom};
+
+			double result1 = intg.getRectSqValue_0(rect1); 
+			double result2 = intg.getRectSqValue_0(rect2);
+			result = result1 - 3 * result2;
+			break;
+		}
+	case HFT_SQ_Y_ABA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_right = x_left + haar_feature.size.x - 1;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_middleT = y_top + haar_feature.size.y - 1;
+			int y_middleB = y_middleT + haar_feature.size.y;
+			int y_bottom = y_middleB + haar_feature.size.y;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_left, x_right, y_middleT + 1, y_middleB};
+
+			double result1 = intg.getRectSqValue_0(rect1);
+			double result2 = intg.getRectSqValue_0(rect2);
+			result = result1 - 3 * result2;
+			break;
+		}
+	case HFT_SQ_X_ABBA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_middleL = x_left + haar_feature.size.x - 1;
+			int x_middleR = x_middleL + haar_feature.size.x * 2;
+			int x_right = x_middleR + haar_feature.size.x;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_bottom = y_top + haar_feature.size.y - 1;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_middleL + 1, x_middleR, y_top, y_bottom};
+
+			double result1 = intg.getRectSqValue_0(rect1); 
+			double result2 = intg.getRectSqValue_0(rect2);
+			result = result1 - 2 * result2;
+			break;
+		}
+	case HFT_SQ_Y_ABBA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_right = x_left + haar_feature.size.x - 1;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_middleT = y_top + haar_feature.size.y - 1;
+			int y_middleB = y_middleT + haar_feature.size.y * 2;
+			int y_bottom = y_middleB + haar_feature.size.y;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_left, x_right, y_middleT + 1, y_middleB};
+
+			double result1 = intg.getRectSqValue_0(rect1);
+			double result2 = intg.getRectSqValue_0(rect2);
+			result = result1 - 2 * result2;
+			break;
+		}
+	case HFT_SQ_XY_ABA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_middleL = x_left + haar_feature.size.x - 1;
+			int x_middleR = x_middleL + haar_feature.size.x;
+			int x_right = x_middleR + haar_feature.size.x;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_middleT = y_top + haar_feature.size.y - 1;
+			int y_middleB = y_middleT + haar_feature.size.y;
+			int y_bottom = y_middleB + haar_feature.size.y;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_middleL + 1, x_middleR, y_middleT + 1, y_middleB};
+
+			double result1 = intg.getRectSqValue_0(rect1);
+			double result2 = intg.getRectSqValue_0(rect2);
+			result = result1 - 9 * result2;
+			break;
+		}
+	case HFT_SQ_XY_ABBA:
+		{
+			int x_left = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_middleL = x_left + haar_feature.size.x - 1;
+			int x_middleR = x_middleL + haar_feature.size.x * 2;
+			int x_right = x_middleR + haar_feature.size.x;
+			int y_top = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_middleT = y_top + haar_feature.size.y - 1;
+			int y_middleB = y_middleT + haar_feature.size.y * 2;
+			int y_bottom = y_middleB + haar_feature.size.y;
+
+			CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
+			CB_RectT rect2 = {x_middleL + 1, x_middleR, y_middleT + 1, y_middleB};
+
+			double result1 = intg.getRectSqValue_0(rect1);
+			double result2 = intg.getRectSqValue_0(rect2);
+			result = result1 - 4 * result2;
+			break;
+		}
+	case HFT_SQ_A_B:
+		{
+			int x_left1 = cur_scan_pos_x + haar_feature.pos1.x;
+			int x_right1 = x_left1 + haar_feature.size.x - 1;
+			int y_top1 = cur_scan_pos_y + haar_feature.pos1.y;
+			int y_bottom1 = y_top1 + haar_feature.size.y - 1;
+
+			int x_left2 = cur_scan_pos_x + haar_feature.pos2.x;
+			int x_right2 = x_left2 + haar_feature.size.x - 1;
+			int y_top2 = cur_scan_pos_y + haar_feature.pos2.y;
+			int y_bottom2 = y_top2 + haar_feature.size.y - 1;
+
+			CB_RectT rect1 = {x_left1, x_right1, y_top1, y_bottom1};
+			CB_RectT rect2 = {x_left2, x_right2, y_top2, y_bottom2};
+
+			double result1 = intg.getRectSqValue_0(rect1);
+			double result2 = intg.getRectSqValue_0(rect2);
+			result = result1 - result2;
+			break;
+		}
+	default:
+		break;
 	}
-	else if (haar_feature.type == HFT_X_ABA)
-	{
-		int x_left = cur_scan_pos_x + haar_feature.pos1.x;
-		int x_middleL = x_left + haar_feature.size.x - 1;
-		int x_middleR = x_middleL + haar_feature.size.x;
-		int x_right = x_middleR + haar_feature.size.x;
-		int y_top = cur_scan_pos_y + haar_feature.pos1.y;
-		int y_bottom = y_top + haar_feature.size.y - 1;
-
-		CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
-		CB_RectT rect2 = {x_middleL + 1, x_middleR, y_top, y_bottom};
-
-		double result1 = intg.getRectValue_0(rect1); 
-		double result2 = intg.getRectValue_0(rect2);
-		result = result1 - 3 * result2;
-	}
-	else if (haar_feature.type == HFT_Y_ABA)
-	{
-		int x_left = cur_scan_pos_x + haar_feature.pos1.x;
-		int x_right = x_left + haar_feature.size.x - 1;
-		int y_top = cur_scan_pos_y + haar_feature.pos1.y;
-		int y_middleT = y_top + haar_feature.size.y - 1;
-		int y_middleB = y_middleT + haar_feature.size.y;
-		int y_bottom = y_middleB + haar_feature.size.y;
-
-		CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
-		CB_RectT rect2 = {x_left, x_right, y_middleT + 1, y_middleB};
-
-		double result1 = intg.getRectValue_0(rect1);
-		double result2 = intg.getRectValue_0(rect2);
-		result = result1 - 3 * result2;
-	}
-	else if (haar_feature.type == HFT_X_ABBA)
-	{
-		int x_left = cur_scan_pos_x + haar_feature.pos1.x;
-		int x_middleL = x_left + haar_feature.size.x - 1;
-		int x_middleR = x_middleL + haar_feature.size.x * 2;
-		int x_right = x_middleR + haar_feature.size.x;
-		int y_top = cur_scan_pos_y + haar_feature.pos1.y;
-		int y_bottom = y_top + haar_feature.size.y - 1;
-
-		CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
-		CB_RectT rect2 = {x_middleL + 1, x_middleR, y_top, y_bottom};
-
-		double result1 = intg.getRectValue_0(rect1); 
-		double result2 = intg.getRectValue_0(rect2);
-		result = result1 - 2 * result2;
-	}
-	else if (haar_feature.type == HFT_Y_ABBA)
-	{
-		int x_left = cur_scan_pos_x + haar_feature.pos1.x;
-		int x_right = x_left + haar_feature.size.x - 1;
-		int y_top = cur_scan_pos_y + haar_feature.pos1.y;
-		int y_middleT = y_top + haar_feature.size.y - 1;
-		int y_middleB = y_middleT + haar_feature.size.y * 2;
-		int y_bottom = y_middleB + haar_feature.size.y;
-
-		CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
-		CB_RectT rect2 = {x_left, x_right, y_middleT + 1, y_middleB};
-
-		double result1 = intg.getRectValue_0(rect1);
-		double result2 = intg.getRectValue_0(rect2);
-		result = result1 - 2 * result2;
-	}
-	else if (haar_feature.type == HFT_XY_ABA)
-	{
-		int x_left = cur_scan_pos_x + haar_feature.pos1.x;
-		int x_middleL = x_left + haar_feature.size.x - 1;
-		int x_middleR = x_middleL + haar_feature.size.x;
-		int x_right = x_middleR + haar_feature.size.x;
-		int y_top = cur_scan_pos_y + haar_feature.pos1.y;
-		int y_middleT = y_top + haar_feature.size.y - 1;
-		int y_middleB = y_middleT + haar_feature.size.y;
-		int y_bottom = y_middleB + haar_feature.size.y;
-
-		CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
-		CB_RectT rect2 = {x_middleL + 1, x_middleR, y_middleT + 1, y_middleB};
-
-		double result1 = intg.getRectValue_0(rect1);
-		double result2 = intg.getRectValue_0(rect2);
-		result = result1 - 9 * result2;
-	}
-	else if (haar_feature.type == HFT_XY_ABBA)
-	{
-		int x_left = cur_scan_pos_x + haar_feature.pos1.x;
-		int x_middleL = x_left + haar_feature.size.x - 1;
-		int x_middleR = x_middleL + haar_feature.size.x * 2;
-		int x_right = x_middleR + haar_feature.size.x;
-		int y_top = cur_scan_pos_y + haar_feature.pos1.y;
-		int y_middleT = y_top + haar_feature.size.y - 1;
-		int y_middleB = y_middleT + haar_feature.size.y * 2;
-		int y_bottom = y_middleB + haar_feature.size.y;
-
-		CB_RectT rect1 = {x_left, x_right, y_top, y_bottom};
-		CB_RectT rect2 = {x_middleL + 1, x_middleR, y_middleT + 1, y_middleB};
-
-		double result1 = intg.getRectValue_0(rect1);
-		double result2 = intg.getRectValue_0(rect2);
-		result = result1 - 4 * result2;
-	}
-	else if (haar_feature.type == HFT_L_AB)
-	{
-		int x = cur_scan_pos_x + haar_feature.pos1.x;
-		int y = cur_scan_pos_y + haar_feature.pos1.y;
-		CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect1;
-		slantToRect(slant1, rect1, subwin.image_size);
-
-		x = rect1.left.x;
-		y = rect1.left.y;
-		CB_SlantT slant2 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect2;
-		slantToRect(slant2, rect2, subwin.image_size);
-
-		double result1 = intg.getRectValue_45(rect1);
-		double result2 = intg.getRectValue_45(rect2);
-
-		result = result1 - result2;
-	}
-	else if (haar_feature.type == HFT_R_AB)
-	{
-		int x = cur_scan_pos_x + haar_feature.pos1.x;
-		int y = cur_scan_pos_y + haar_feature.pos1.y;
-		CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect1;
-		slantToRect(slant1, rect1, subwin.image_size);
-
-		x = rect1.right.x;
-		y = rect1.right.y;
-		CB_SlantT slant2 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect2;
-		slantToRect(slant2, rect2, subwin.image_size);
-
-		double result1 = intg.getRectValue_45(rect1);
-		double result2 = intg.getRectValue_45(rect2);
-
-		result = result1 - result2;
-	}
-	else if (haar_feature.type == HFT_L_ABA)
-	{
-		int x = cur_scan_pos_x + haar_feature.pos1.x;
-		int y = cur_scan_pos_y + haar_feature.pos1.y;
-		CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect1;
-		slantToRect(slant1, rect1, subwin.image_size);
-
-		x = rect1.left.x;
-		y = rect1.left.y;
-		CB_SlantT slant2 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect2;
-		slantToRect(slant2, rect2, subwin.image_size);
-
-		x = rect2.left.x;
-		y = rect2.left.y;
-		CB_SlantT slant3 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect3;
-		slantToRect(slant3, rect3, subwin.image_size);
-
-		double result1 = intg.getRectValue_45(rect1);
-		double result2 = intg.getRectValue_45(rect2);
-		double result3 = intg.getRectValue_45(rect3);
-
-		result = result1 + result3 - 2 * result2;
-	}
-	else if (haar_feature.type == HFT_R_ABA)
-	{
-		int x = cur_scan_pos_x + haar_feature.pos1.x;
-		int y = cur_scan_pos_y + haar_feature.pos1.y;
-		CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect1;
-		slantToRect(slant1, rect1, subwin.image_size);
-
-		x = rect1.right.x;
-		y = rect1.right.y;
-		CB_SlantT slant2 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect2;
-		slantToRect(slant2, rect2, subwin.image_size);
-
-		x = rect2.right.x;
-		y = rect2.right.y;
-		CB_SlantT slant3 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect3;
-		slantToRect(slant3, rect3, subwin.image_size);
-
-		double result1 = intg.getRectValue_45(rect1);
-		double result2 = intg.getRectValue_45(rect2);
-		double result3 = intg.getRectValue_45(rect3);
-
-		result = result1 + result3 - 2 * result2;
-	}
-	else if (haar_feature.type == HFT_L_ABBA)
-	{
-		int x = cur_scan_pos_x + haar_feature.pos1.x;
-		int y = cur_scan_pos_y + haar_feature.pos1.y;
-		CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect1;
-		slantToRect(slant1, rect1, subwin.image_size);
-
-		x = rect1.left.x;
-		y = rect1.left.y;
-		CB_SlantT slant2 = {x, y, haar_feature.size.x * 2, haar_feature.size.y};
-		CB_RectangleT rect2;
-		slantToRect(slant2, rect2, subwin.image_size);
-
-		x = rect2.left.x;
-		y = rect2.left.y;
-		CB_SlantT slant3 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect3;
-		slantToRect(slant3, rect3, subwin.image_size);
-
-		double result1 = intg.getRectValue_45(rect1);
-		double result2 = intg.getRectValue_45(rect2);
-		double result3 = intg.getRectValue_45(rect3);
-
-		result = result1 + result3 - result2;
-	}
-	else if (haar_feature.type == HFT_R_ABBA)
-	{
-		int x = cur_scan_pos_x + haar_feature.pos1.x;
-		int y = cur_scan_pos_y + haar_feature.pos1.y;
-		CB_SlantT slant1 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect1;
-		slantToRect(slant1, rect1, subwin.image_size);
-
-		x = rect1.right.x;
-		y = rect1.right.y;
-		CB_SlantT slant2 = {x, y, haar_feature.size.x, haar_feature.size.y * 2};
-		CB_RectangleT rect2;
-		slantToRect(slant2, rect2, subwin.image_size);
-
-		x = rect2.right.x;
-		y = rect2.right.y;
-		CB_SlantT slant3 = {x, y, haar_feature.size.x, haar_feature.size.y};
-		CB_RectangleT rect3;
-		slantToRect(slant3, rect3, subwin.image_size);
-
-		double result1 = intg.getRectValue_45(rect1);
-		double result2 = intg.getRectValue_45(rect2);
-		double result3 = intg.getRectValue_45(rect3);
-
-		result = result1 + result3 - result2;
-	}
-	else if (haar_feature.type == HFT_A_B)
-	{
-		int x_left1 = cur_scan_pos_x + haar_feature.pos1.x;
-		int x_right1 = x_left1 + haar_feature.size.x - 1;
-		int y_top1 = cur_scan_pos_y + haar_feature.pos1.y;
-		int y_bottom1 = y_top1 + haar_feature.size.y - 1;
-
-		int x_left2 = cur_scan_pos_x + haar_feature.pos2.x;
-		int x_right2 = x_left2 + haar_feature.size.x - 1;
-		int y_top2 = cur_scan_pos_y + haar_feature.pos2.y;
-		int y_bottom2 = y_top2 + haar_feature.size.y - 1;
-
-		CB_RectT rect1 = {x_left1, x_right1, y_top1, y_bottom1};
-		CB_RectT rect2 = {x_left2, x_right2, y_top2, y_bottom2};
-
-		double result1 = intg.getRectValue_0(rect1);
-		double result2 = intg.getRectValue_0(rect2);
-		result = result1 - result2;
-	}
-
 	result *= haar_feature.inv_area;
 	result = result / subwin.var;
 	result /= real_scale_square;
 
-	if (haar.is_abs == 1)
+	if (haar_feature.type <HFT_STEP1 && haar.is_abs == 1)
 	{
 		result = fabs(result);
 	}

@@ -22,7 +22,7 @@ const double MAX_OBJ_OVERLAP_Y = 0.4;
 
 typedef enum 
 {
-	UPRIGHT_HAAR = 1, SLANT_HAAR = 2, UPRIGHT_FAR_HAAR = 4
+	UPRIGHT_HAAR = 1, SLANT_HAAR = 2, UPRIGHT_FAR_HAAR = 4, UPRIGHT_SQ_HAAR = 8, UPRIGHT_SQ_FAR_HAAR = 16
 }FeatureTypeE;
 
 
@@ -118,10 +118,14 @@ typedef struct
 	double neg_end_x_r;
 	double neg_start_y_r;
 	double neg_end_y_r;
+
+	int is_size_ratio_on;
 	double neg_min_w_r;
 	double neg_max_w_r;
-	double neg_min_h_r;
-	double neg_max_h_r;
+	
+	int is_size_len_on;
+	int neg_min_w;
+	int neg_max_w;
 }TrainParamsT;
 
 

@@ -61,6 +61,7 @@ int NegativeExtractor::init(TrainParamsT &params)
 
 int NegativeExtractor::extractSamples(int needed_num, const CascadeModelT *model)
 {
+	static int is_last = 0;
 	detector.init((CascadeModelT *)model);
 
 	int added_sum = 0;
@@ -101,7 +102,10 @@ int NegativeExtractor::extractSamples(int needed_num, const CascadeModelT *model
 		{
 			if (scan_shift_step < 1.01 && scan_scale_step < 1.2)
 			{
-				break;
+				if (is_last > 0)
+					break;
+				else 
+					is_last = 1;
 			}
 			
 			pool_image_idx = 0;
@@ -137,12 +141,26 @@ int NegativeExtractor::detectImage(const Mat &image)
 	param.resize_h = 0;
 	param.scan_scale_step = scan_scale_step;
 	param.scan_shift_step = scan_shift_step;
-	param.min_win_w = pt_params->neg_min_w_r * image.cols;
-	param.max_win_w = pt_params->neg_max_w_r * image.cols;
 	param.hot_rect.left = pt_params->neg_start_x_r * image.cols;
 	param.hot_rect.right = pt_params->neg_end_x_r * image.cols;
 	param.hot_rect.top = pt_params->neg_start_y_r * image.rows;
 	param.hot_rect.bottom = pt_params->neg_end_y_r * image.rows;
+
+	if (pt_params->is_size_ratio_on > 0 && pt_params->is_size_len_on == 0)
+	{
+		param.min_win_w = image.cols * pt_params->neg_min_w_r;
+		param.max_win_w = image.cols * pt_params->neg_max_w_r;
+	}
+	else if (pt_params->is_size_len_on > 0 && pt_params->is_size_ratio_on == 0)
+	{
+		param.min_win_w = pt_params->neg_min_w;
+		param.max_win_w = pt_params->neg_max_w;
+	}
+	else if (pt_params->is_size_len_on > 0 && pt_params->is_size_ratio_on > 0)
+	{
+		param.min_win_w = max((int)(image.cols * pt_params->neg_min_w_r), pt_params->neg_min_w);
+		param.max_win_w = min((int)(image.cols * pt_params->neg_max_w_r), pt_params->neg_max_w);
+	}
 
 	detector.setScanParams(&param);
 

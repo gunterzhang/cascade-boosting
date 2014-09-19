@@ -292,6 +292,11 @@ int Cascade::loadConfig(TrainParamsT &params)
 			fscanf(fp, "%lf", &params.neg_end_y_r);
 			printf("Neg_End_Y_R:     %lf\n", params.neg_end_y_r);
 		}
+		else if (strcmp(tmp_str, "Size_Ratio_On:") == 0)
+		{
+			fscanf(fp, "%d", &params.is_size_ratio_on);
+			printf("Size_Ratio_On:   %d\n", params.is_size_ratio_on);
+		}
 		else if(strcmp(tmp_str, "Neg_Min_W_R:") == 0)
 		{
 			fscanf(fp, "%lf", &params.neg_min_w_r);
@@ -302,17 +307,23 @@ int Cascade::loadConfig(TrainParamsT &params)
 			fscanf(fp, "%lf", &params.neg_max_w_r);
 			printf("Neg_Max_W_R:     %lf\n", params.neg_max_w_r);
 		}
-		else if(strcmp(tmp_str, "Neg_Min_H_R:") == 0)
+		else if (strcmp(tmp_str, "Size_Length_On:") == 0)
 		{
-			fscanf(fp, "%lf", &params.neg_min_h_r);
-			printf("Neg_Min_H_R:     %lf\n", params.neg_min_h_r);
+			fscanf(fp, "%d", &params.is_size_len_on);
+			printf("Size_Length_On:  %d\n", params.is_size_len_on);
 		}
-		else if(strcmp(tmp_str, "Neg_Max_H_R:") == 0)
+		else if(strcmp(tmp_str, "Neg_Min_W:") == 0)
 		{
-			fscanf(fp, "%lf", &params.neg_max_h_r);
-			printf("Neg_Max_H_R:     %lf\n", params.neg_max_h_r);
+			fscanf(fp, "%d", &params.neg_min_w);
+			printf("Neg_Min_W:       %d\n", params.neg_min_w);
+		}
+		else if(strcmp(tmp_str, "Neg_Max_W:") == 0)
+		{
+			fscanf(fp, "%d", &params.neg_max_w);
+			printf("Neg_Max_W:       %d\n", params.neg_max_w);
 		}
 	}
+
 	fclose(fp);
 	printf("Push any key to start training\n");
 	getchar();
