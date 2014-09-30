@@ -7,6 +7,9 @@
 
 Boosting::Boosting(void)
 {
+	max_pos_sample_num = 0;
+	max_neg_sample_num = 0;
+
 	positive_features = NULL;
 	negative_features = NULL;
 
@@ -15,8 +18,6 @@ Boosting::Boosting(void)
 
 	positive_scores = NULL;
 	negative_scores = NULL;
-
-	feature_values = NULL;
 }
 
 
@@ -30,11 +31,21 @@ int Boosting::clearUp()
 {
 	if (positive_features != NULL)
 	{
+		for (int i=0; i<max_pos_sample_num; i++)
+		{
+			delete [](positive_features[i]);
+			positive_features[i] = NULL;
+		}
 		delete []positive_features;
 		positive_features = NULL;
 	}
 	if (negative_features = NULL)
 	{
+		for (int i=0; i<max_neg_sample_num; i++)
+		{
+			delete [](negative_features[i]);
+			negative_features[i] = NULL;
+		}
 		delete []negative_features;
 		negative_features = NULL;
 	}
@@ -61,15 +72,6 @@ int Boosting::clearUp()
 		negative_scores = NULL;
 	}
 
-	if (feature_values != NULL)
-	{
-		for (int i=0; i<total_feature_num; i++)
-		{
-			delete []feature_values[i];
-		}
-		delete []feature_values;
-		feature_values = NULL;
-	}
 	return 1;
 }
 
@@ -87,22 +89,25 @@ int Boosting::init(const TrainParamsT &params)
 	fprintf(fp, "feature num:%d\n", total_feature_num);
 	fclose(fp);
 
-	int max_pos_sample_num = params.positive_num;
-	int max_neg_sample_num = max(params.min_negative_num, params.positive_num) + params.max_neg_per_image * 2;
+	max_pos_sample_num = params.positive_num;
+	max_neg_sample_num = max(params.min_negative_num, params.positive_num) + params.max_neg_per_image * 2;
 
-	positive_features = new float[max_pos_sample_num * total_feature_num];
-	negative_features = new float[max_neg_sample_num * total_feature_num];
+	positive_features = new HaarFeatureValueT*[max_pos_sample_num];
+	for (int i=0; i<max_pos_sample_num; i++)
+	{
+		positive_features[i] = new HaarFeatureValueT[total_feature_num];
+	}
+	
+	negative_features = new HaarFeatureValueT*[max_neg_sample_num];
+	for (int i=0; i<max_neg_sample_num; i++)
+	{
+		negative_features[i] = new HaarFeatureValueT[total_feature_num];
+	}
+
 	positive_weights = new double[max_pos_sample_num];
 	negative_weights = new double[max_neg_sample_num];
 	positive_scores = new double[max_pos_sample_num];
 	negative_scores = new double[max_neg_sample_num];
-
-	int max_sample_num = max_pos_sample_num + max_neg_sample_num;
-	feature_values = new int*[total_feature_num];
-	for (int i=0; i<total_feature_num; i++)
-	{
-		feature_values[i] = new int[max_sample_num];
-	}
 
 	iteration = 0;
 	return 1;
@@ -135,7 +140,7 @@ int Boosting::prepareNewStage(PatternModel &model)
 	extractFeatures(positive_num, pt_params->positive_data_path, positive_features);
 	extractFeatures(negative_num, pt_params->negative_data_path, negative_features);
 
-	packTrainingData(positive_num, positive_features, negative_num, negative_features);
+	packFeatures();
 
 	reweight(model);
 
@@ -158,7 +163,7 @@ int Boosting::trainWeakLearner(PatternModel &model)
 }
 
 
-void Boosting::packTrainingData(int positive_num, const float *positive_features, int negative_num, const float *negative_features)
+void Boosting::packFeatures()
 {
 	for (int i=0; i<total_feature_num; i++)
 	{
@@ -179,8 +184,7 @@ void Boosting::discretization(int feature_idx)
 
 	for (int i=0; i<positive_num; i++)
 	{
-		int idx = i * total_feature_num + feature_idx;
-		double value = positive_features[idx];
+		double value = positive_features[i][feature_idx].value;
 		if (value < min_positive_value) 
 			min_positive_value = value;
 
@@ -193,8 +197,7 @@ void Boosting::discretization(int feature_idx)
 
 	for (int i=0; i<negative_num; i++)
 	{
-		int idx = i * total_feature_num + feature_idx;
-		double value = negative_features[idx];
+		double value = negative_features[i][feature_idx].value;
 		if (value < min_negative_value) 
 			min_negative_value = value;
 
@@ -202,31 +205,21 @@ void Boosting::discretization(int feature_idx)
 			max_negative_value = value;
 	}				
 
-	if (max_positive_value > max_negative_value)
-		info.bin_max = ceil(max_negative_value);
-	else
-		info.bin_max = ceil(max_positive_value);
-
-	if (min_positive_value > min_negative_value) 
-		info.bin_min = floor(min_positive_value);
-	else
-		info.bin_min = floor(min_negative_value);
-
+	info.bin_max = ceil(min(max_positive_value, max_negative_value));
+	info.bin_min = floor(max(min_positive_value, min_negative_value));
 	info.bin_width = (info.bin_max - info.bin_min) / double(info.bin_num - 2);
 	info.inv_bin_width = 1.0 / double(info.bin_width);
 	
 	for (int i=0; i<positive_num; i++)
 	{
-		int idx = i * total_feature_num + feature_idx;
-		double value = positive_features[idx];
-		feature_values[feature_idx][i] = haar.computeFeatureIndex(value);
+		double value = positive_features[i][feature_idx].value;
+		positive_features[i][feature_idx].index = haar.computeFeatureIndex(value);
 	}
 
 	for (int i=0; i<negative_num; i++)
 	{
-		int idx = i * total_feature_num + feature_idx;
-		double value = negative_features[idx];
-		feature_values[feature_idx][i+positive_num] = haar.computeFeatureIndex(value);
+		double value = negative_features[i][feature_idx].value;
+		negative_features[i][feature_idx].index = haar.computeFeatureIndex(value);
 	}
 }
 
@@ -247,12 +240,12 @@ int Boosting::learnOneWeakLearner(WeakLearner &weak_learner)
 
 		for (int j=0; j<positive_num; j++)
 		{
-			int bin_idx = feature_values[i][j];
+			int bin_idx = positive_features[j][i].index;
 			positive_hist[bin_idx] += positive_weights[j];
 		}
 		for (int j=0; j<negative_num; j++)
 		{
-			int bin_idx = feature_values[i][j+positive_num];
+			int bin_idx = negative_features[j][i].index;
 			negative_hist[bin_idx] += negative_weights[j];
 		}
 
@@ -276,12 +269,12 @@ int Boosting::learnOneWeakLearner(WeakLearner &weak_learner)
 
 	for (int i=0; i<positive_num; i++)
 	{
-		int binIndex = feature_values[best_feature_idx][i];
+		int binIndex = positive_features[i][best_feature_idx].index;
 		positive_hist[binIndex] += positive_weights[i];
 	}
 	for (int i=0; i<negative_num; i++)
 	{
-		int binIndex = feature_values[best_feature_idx][i+positive_num];
+		int binIndex = negative_features[i][best_feature_idx].index;
 		negative_hist[binIndex] += negative_weights[i]; 
 	}
 
@@ -316,7 +309,7 @@ int Boosting::updateWeights(const WeakLearner &weak_learner, int iteration_idx)
 	double weight_sum = 0;
 	for (int i=0; i<positive_num; i++)
 	{
-		int bin_idx = feature_values[feature_idx][i];
+		int bin_idx = positive_features[i][feature_idx].index;
 		double value = weak_learner.output[bin_idx];
 		positive_weights[i] *= exp(-value);
 		weight_sum += positive_weights[i];
@@ -324,7 +317,7 @@ int Boosting::updateWeights(const WeakLearner &weak_learner, int iteration_idx)
 
 	for (int i=0; i<negative_num; i++)
 	{
-		int bin_idx = feature_values[feature_idx][i+positive_num];
+		int bin_idx = negative_features[i][feature_idx].index;
 		double value = weak_learner.output[bin_idx];
 		negative_weights[i] *= exp(value);
 		weight_sum += negative_weights[i];
@@ -337,27 +330,26 @@ int Boosting::updateWeights(const WeakLearner &weak_learner, int iteration_idx)
 double Boosting::getStrongLearnerThd(const PatternModel &model)
 {
 	memset(positive_scores, 0, positive_num * sizeof(positive_scores[0]));
-
 	for (int i=0; i<positive_num; i++)
 	{
 		for (int j=0; j<=iteration; j++)
 		{
 			int feature_idx = learned_feature_idx[j];
-			int idx = feature_values[feature_idx][i];
-			double score = model.pt_weak_learners[j].output[idx];
+			int binIndex = positive_features[i][feature_idx].index;
+			double score = model.pt_weak_learners[j].output[binIndex];
 			positive_scores[i] += score;
 		}
 	}
 
 	memset(negative_scores, 0, negative_num * sizeof(negative_scores[0]));
-
 	for (int i=0; i<negative_num; i++)
 	{
 		for (int j=0; j<=iteration; j++)
 		{
 			int feature_idx = learned_feature_idx[j];
-			int idx = feature_values[feature_idx][i+positive_num];
-			double score = model.pt_weak_learners[j].output[idx];
+			int binIndex = negative_features[i][feature_idx].index;
+
+			double score = model.pt_weak_learners[j].output[binIndex];
 			negative_scores[i] += score;
 		}
 	}
@@ -554,7 +546,7 @@ int Boosting::reweight(PatternModel &model)
 }
 
 
-int Boosting::extractFeatures(int sample_num, const string &data_path, float *pt_features)
+int Boosting::extractFeatures(int sample_num, const string &data_path, HaarFeatureValueT **pt_features)
 {
 	FILE *fp = fopen(data_path.c_str(), "rb");
 	if (fp == NULL)
@@ -564,8 +556,8 @@ int Boosting::extractFeatures(int sample_num, const string &data_path, float *pt
 	for (int i=0; i<sample_num; i++)
 	{
 		printf("%d -- %d\r", sample_num, i+1);
-		const float *pt_cur_feature = haar_hub.extractAllFeatures(fp);
-		memcpy(pt_features + i * total_feature_num, pt_cur_feature, total_feature_num * sizeof(pt_features[0]));
+		const HaarFeatureValueT *pt_cur_feature = haar_hub.extractAllFeatures(fp);
+		memcpy(pt_features[i], pt_cur_feature, total_feature_num * sizeof(pt_cur_feature[0]));
 	}
 	fclose(fp);
 

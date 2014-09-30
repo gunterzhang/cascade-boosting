@@ -59,9 +59,8 @@ int Cascade::train()
 			}
 			boosting.prepareNewStage(model);
 		}
-		MessageBeep(MB_OK);
 		boosting.trainWeakLearner(model);
-
+		MessageBeep(MB_OK);
 		is_new_stage = 0;
 		if (isStageLearned() > 0)
 		{

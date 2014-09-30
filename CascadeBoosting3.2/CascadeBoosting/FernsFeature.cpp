@@ -12,8 +12,8 @@ FernsFeature::~FernsFeature(void)
 }
 
 
-int FernsFeature::computeFeature()
+int FernsFeature::computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin)
 {
-	int value;
-	return value;
+	int fern_idx;
+	return fern_idx;
 }

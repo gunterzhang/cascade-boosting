@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="Boosting.h" />
     <ClInclude Include="Cascade.h" />
+    <ClInclude Include="FernFeatureHub.h" />
     <ClInclude Include="FernsFeature.h" />
     <ClInclude Include="HaarFeatureHub.h" />
     <ClInclude Include="ObjMerger.h" />
@@ -178,6 +179,7 @@
   <ItemGroup>
     <ClCompile Include="Boosting.cpp" />
     <ClCompile Include="Cascade.cpp" />
+    <ClCompile Include="FernFeatureHub.cpp" />
     <ClCompile Include="FernsFeature.cpp" />
     <ClCompile Include="HaarFeatureHub.cpp" />
     <ClCompile Include="ObjMerger.cpp" />

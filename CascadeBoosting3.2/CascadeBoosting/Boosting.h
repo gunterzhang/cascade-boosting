@@ -21,9 +21,9 @@ public:
 private:
 	int clearUp();
 	int initWeights();
-	int extractFeatures(int sample_num, const string &data_path, float *pt_features);
+	int extractFeatures(int sample_num, const string &data_path, HaarFeatureValueT **pt_features);
 	int reweight(PatternModel &model);
-	void packTrainingData(int positive_num, const float *positive_features, int negative_num, const float *negative_features);
+	void packFeatures();
 	void discretization(int feature_idx);
 	int learnOneWeakLearner(WeakLearner &weak_learner);
 	int updateWeights(const WeakLearner &weak_learner, int iteration_idx);
@@ -39,11 +39,14 @@ private:
 
 	HaarFeatureHub haar_hub;
 
+	int max_pos_sample_num;
+	int max_neg_sample_num;
+
 	int positive_num;
 	int negative_num;
 
-	float *positive_features;
-	float *negative_features;
+	HaarFeatureValueT **positive_features;
+	HaarFeatureValueT **negative_features;
 
 	double *positive_weights;
 	double *negative_weights;
@@ -52,8 +55,6 @@ private:
 	double *negative_scores;
 
 	int total_feature_num;
-
-	int **feature_values;
 
 	int learned_feature_idx[MAX_ROUND_NUM];
 

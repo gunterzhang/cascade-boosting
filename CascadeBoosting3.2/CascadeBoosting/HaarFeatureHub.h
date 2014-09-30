@@ -18,7 +18,7 @@ public:
 
 	int init(int w, int h, int type, int is_abs);
 	int getFeatureNum();
-	const float *extractAllFeatures(FILE *fp);
+	const HaarFeatureValueT *extractAllFeatures(FILE *fp);
 
 private:
 	void clearUp();
@@ -34,7 +34,7 @@ public:
 private:
 	IntegralImage intg;
 
-	float *pt_features;
+	HaarFeatureValueT *pt_features;
 
 	int template_w;
 	int template_h;

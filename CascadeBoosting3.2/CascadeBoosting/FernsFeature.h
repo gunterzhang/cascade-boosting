@@ -1,15 +1,13 @@
 #pragma once
-
 #include "HaarFeature.h"
+
+const int MAX_FERN_CELL_NUM = 10;
 
 typedef struct
 {
-	int cell_num;
-	const static int MAX_FERN_CELL_NUM = 10;
-	HaarFeatureInfoT haars[MAX_FERN_CELL_NUM];
-	int bin_num;
-	int bin_idx;
-}FernsFeatureInfoT;
+	HaarFeatureValueT haar_value[MAX_FERN_CELL_NUM];
+	int index;
+}FernFeatureValueT;
 
 
 class FernsFeature
@@ -18,9 +16,11 @@ public:
 	FernsFeature(void);
 	~FernsFeature(void);
 
-	int computeFeature();
+	int init();
+	int computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin);
 
 private:
-
+	int cell_num;
+	HaarFeatureInfoT haars[MAX_FERN_CELL_NUM];
 };
 

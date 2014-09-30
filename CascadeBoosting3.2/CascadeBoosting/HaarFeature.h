@@ -58,6 +58,12 @@ typedef struct
 }HaarFeatureInfoT;
 
 
+typedef struct
+{
+	float value;
+	int index;
+}HaarFeatureValueT;
+
 class HaarFeature
 {
 public:

@@ -149,7 +149,7 @@ int HaarFeatureHub::init(int w, int h, int type, int is_abs)
 
 	feature_num = getAllFeatureInfos(-1);
 
-	pt_features = new float[feature_num];
+	pt_features = new HaarFeatureValueT[feature_num];
 	pt_haars = new HaarFeature[feature_num];
 	
 	getAllFeatureInfos(0);
@@ -158,7 +158,7 @@ int HaarFeatureHub::init(int w, int h, int type, int is_abs)
 }
 
 
-const float *HaarFeatureHub::extractAllFeatures(FILE *fp)
+const HaarFeatureValueT *HaarFeatureHub::extractAllFeatures(FILE *fp)
 {
 	int rst = getAllFeatureInfos(1, fp);
 
@@ -302,7 +302,7 @@ int HaarFeatureHub::extractOneTypeFeatures(int is_extract_feature, HaarFeature &
 					}
 					else if (is_extract_feature > 0)
 					{
-						*(pt_features + feature_count) = extractFeature(pt_haars[feature_count]);
+						(pt_features + feature_count)->value = extractFeature(pt_haars[feature_count]);
 					}
 					feature_count++;
 					info.size.x += HAAR_SCALE_STEP_X;
@@ -354,7 +354,7 @@ int HaarFeatureHub::extractOneTypeFeatures45(int is_extract_feature, HaarFeature
 					}
 					else if (is_extract_feature > 0)
 					{
-						*(pt_features + feature_count) = extractFeature(pt_haars[feature_count]);
+						(pt_features + feature_count)->value = extractFeature(pt_haars[feature_count]);
 					}
 					feature_count++;
 					info.size.x += HAAR_SCALE_STEP_X;
@@ -400,7 +400,7 @@ int HaarFeatureHub::extractOneTypeFeaturesAB(int is_extract_feature, HaarFeature
 						}
 						else if (is_extract_feature > 0)
 						{
-							*(pt_features + feature_count) = extractFeature(pt_haars[feature_count]);
+							(pt_features + feature_count)->value = extractFeature(pt_haars[feature_count]);
 						}
 						info.pos2.x += HAAR_SHIFT_STEP_X * 2;
 						feature_count++;
@@ -417,7 +417,7 @@ int HaarFeatureHub::extractOneTypeFeaturesAB(int is_extract_feature, HaarFeature
 						}
 						else if (is_extract_feature > 0)
 						{
-							*(pt_features + feature_count) = extractFeature(pt_haars[feature_count]);
+							(pt_features + feature_count)->value = extractFeature(pt_haars[feature_count]);
 						}
 						info.pos2.y += HAAR_SHIFT_STEP_Y * 2;
 						feature_count++;
