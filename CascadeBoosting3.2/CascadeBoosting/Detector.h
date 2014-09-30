@@ -2,7 +2,7 @@
 #include "TrainParams.h"
 #include "Boosting.h"
 #include "ObjMerger.h"
-
+#include "PatternModel.h"
 
 typedef struct
 {
@@ -23,7 +23,7 @@ public:
 	~Detector(void);
 
 	int init(const string &model_path);
-	int init(CascadeModelT *pt_model);
+	int init(PatternModel *pt_model);
 	int detect(const Mat &image, int max_num, CB_RectT *pt_rects, int &subwin_count);
 	int batchDetect(const string &src_image_folder, const string &dst_image_folder);
 	int setScanParams(const DetectorParamT *pt_param);
@@ -35,8 +35,8 @@ private:
 	int drawRects(Mat &image, int num, CB_RectT *pt_rects, Scalar &color, int thickness, double r);
 
 private:
-	CascadeModelT model;
-	CascadeModelT *pt_model;
+	PatternModel model;
+	PatternModel *pt_model;
 	DetectorParamT param;
 	ObjMerger merger;
 };

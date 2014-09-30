@@ -59,10 +59,10 @@ int NegativeExtractor::init(TrainParamsT &params)
 }
 
 
-int NegativeExtractor::extractSamples(int needed_num, const CascadeModelT *model)
+int NegativeExtractor::extractSamples(int needed_num, const PatternModel *model)
 {
 	static int is_last = 0;
-	detector.init((CascadeModelT *)model);
+	detector.init((PatternModel *)model);
 
 	int added_sum = 0;
 	detect_count = 0;

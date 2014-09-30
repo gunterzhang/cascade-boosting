@@ -7,8 +7,6 @@
 
 Detector::Detector(void)
 {
-	model.pt_weak_learners = NULL;
-
 	param.scan_shift_step = 2;
 	param.scan_scale_step = 1.2;
 }
@@ -16,10 +14,6 @@ Detector::Detector(void)
 
 Detector::~Detector(void)
 {
-	if (model.pt_weak_learners != NULL)
-	{
-		delete []model.pt_weak_learners;
-	}
 }
 
 
@@ -33,7 +27,7 @@ int Detector::setScanParams(const DetectorParamT *pt_param)
 }
 
 
-int Detector::init(CascadeModelT *pt_model)
+int Detector::init(PatternModel *pt_model)
 {
 	this->pt_model = pt_model;
 	return 1;
@@ -42,36 +36,14 @@ int Detector::init(CascadeModelT *pt_model)
 
 int Detector::init(const string &model_path)
 {
-	FILE *fp = fopen(model_path.c_str(), "rt");
-	if (fp == NULL)
+	if (access(model_path.c_str(), 0) == -1)
 	{
 		model.weak_learner_num = 0;
 		model.stage_num = 0;
 		return 0;
 	}
 
-	fscanf(fp, "%d %d\n", &model.template_w, &model.template_h);
-	fscanf(fp, "%d\n", &model.feature_type);
-
-	fscanf(fp, "%d\n", &model.weak_learner_num);
-	if (model.pt_weak_learners != NULL)
-	{
-		delete []model.pt_weak_learners;
-	}
-	model.pt_weak_learners = new WeakLearner[model.weak_learner_num];
-
-	fscanf(fp, "%d\n", &model.stage_num);
-	for (int i=0; i<model.stage_num; i++)
-	{
-		fscanf(fp, "%d %lf\n", &model.stage_idx[i], &model.stage_thd[i]);
-	}
-
-	for (int i=0; i<model.weak_learner_num; i++)
-	{
-		model.pt_weak_learners[i].loadFromFile(fp, model.template_w, model.template_h);
-	}
-
-	fclose(fp);
+	model.loadFromFile(model_path);
 
 	pt_model = &model;
 

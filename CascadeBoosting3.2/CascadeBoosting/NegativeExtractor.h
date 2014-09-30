@@ -14,13 +14,12 @@ public:
 	~NegativeExtractor(void);
 
 	int init(TrainParamsT &param);
-	int extractSamples(int num,  const CascadeModelT *model);
+	int extractSamples(int num,  const PatternModel *model);
 
 private:
 	int detectImage(const Mat &image);
 	bool isRectOverlapLabels(CB_RectT rect);
 	bool isRectsOverlap(CB_RectT rect1, CB_RectT rect2);
-	double weakDetector(const WeakLearnerInfoT &weak_learner_info);
 	bool loadLabelsFromFile(const string &file_path);
 	void saveTrainingData(const Mat &image, CvRect rect);
 

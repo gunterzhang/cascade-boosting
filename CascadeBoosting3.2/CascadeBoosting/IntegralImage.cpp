@@ -363,7 +363,7 @@ int IntegralImage::computeSubwinMeanVar(SubwinInfoT &subwin)
 }
 
 
-inline double IntegralImage::getValue_0(const CB_PointT &pos)
+inline double IntegralImage::getValue_0(const CB_PointT &pos) const
 {
 	if (pos.x < 0 || pos.y < 0)
 		return 0;
@@ -374,7 +374,7 @@ inline double IntegralImage::getValue_0(const CB_PointT &pos)
 }
 
 
-inline double IntegralImage::getSqureValue_0(const CB_PointT &pos)
+inline double IntegralImage::getSqureValue_0(const CB_PointT &pos) const
 {
 	if (pos.x < 0 || pos.y < 0)
 		return 0;
@@ -385,7 +385,7 @@ inline double IntegralImage::getSqureValue_0(const CB_PointT &pos)
 }
 
 
-inline double IntegralImage::getValue_45(const CB_PointT &pos)
+inline double IntegralImage::getValue_45(const CB_PointT &pos) const
 {
 	if (pos.x < 0 || pos.y < 0)
 		return 0;
@@ -396,7 +396,7 @@ inline double IntegralImage::getValue_45(const CB_PointT &pos)
 }
 
 
-inline double IntegralImage::getSqureValue_45(const CB_PointT &pos)
+inline double IntegralImage::getSqureValue_45(const CB_PointT &pos) const
 {
 	if (pos.x < 0 || pos.y < 0)
 		return 0;
@@ -407,7 +407,7 @@ inline double IntegralImage::getSqureValue_45(const CB_PointT &pos)
 }
 
 
-double IntegralImage::getRectValue_0(const CB_RectT &rect)
+double IntegralImage::getRectValue_0(const CB_RectT &rect) const
 {
 	CB_PointT left_top = {rect.left-1, rect.top-1};
 	CB_PointT right_top = {rect.right, rect.top-1};
@@ -422,7 +422,7 @@ double IntegralImage::getRectValue_0(const CB_RectT &rect)
 }
 
 
-double IntegralImage::getRectSqValue_0(const CB_RectT &rect)
+double IntegralImage::getRectSqValue_0(const CB_RectT &rect) const
 {
 	CB_PointT left_top = {rect.left-1, rect.top-1};
 	CB_PointT right_top = {rect.right, rect.top-1};
@@ -437,7 +437,7 @@ double IntegralImage::getRectSqValue_0(const CB_RectT &rect)
 }
 
 
-double IntegralImage::getRectValue_45(const CB_RectangleT &rect)
+double IntegralImage::getRectValue_45(const CB_RectangleT &rect) const
 {
 	double value = getValue_45(rect.right) 
 				 + getValue_45(rect.left)
@@ -447,7 +447,7 @@ double IntegralImage::getRectValue_45(const CB_RectangleT &rect)
 }
 
 
-double IntegralImage::getRectSqValue_45(const CB_RectangleT &rect)
+double IntegralImage::getRectSqValue_45(const CB_RectangleT &rect) const
 {
 	double value = getSqureValue_45(rect.right) 
 				 + getSqureValue_45(rect.left)

@@ -1,8 +1,13 @@
 #pragma once
 #include <string>
+#include <afx.h>
+#include <io.h> 
+#include <direct.h>
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
 using namespace cv;
 
 const int MAX_CASCADE_STAGE_NUM = 30;
@@ -68,24 +73,18 @@ typedef struct
 
 typedef struct
 {
+	int is_train_test;
+
 	string class_label;
 	string work_dir;
 	string label_setting_path;
-	string share_config_path;
 	string config_path;
 
-	int is_extract_positive;
 	string positive_pool_dir;
 	string negative_pool_dir;
 
 	string positive_data_path;
 	string negative_data_path;
-
-	string positive_feature_path;
-	string negative_feature_path;
-
-	string positive_weight_path;
-	string negative_weight_path;
 
 	string train_log_path;
 
@@ -100,8 +99,8 @@ typedef struct
 	string test_src_path;
 	string test_dst_path;
 
-	string stage_path;
 	string model_path;
+	string new_model_path;
 
 	int feature_type;
 	int feature_abs;
@@ -110,9 +109,9 @@ typedef struct
 	int stage_num;
 	double detection_rates[MAX_CASCADE_STAGE_NUM];
 	double false_alarms[MAX_CASCADE_STAGE_NUM];
+
 	int max_neg_per_image;
 	string extracted_negative_dir;
-	int is_save_feature2file;
 
 	double neg_start_x_r;
 	double neg_end_x_r;

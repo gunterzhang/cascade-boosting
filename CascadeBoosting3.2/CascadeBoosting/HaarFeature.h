@@ -2,18 +2,8 @@
 #include "TrainParams.h"
 #include "IntegralImage.h"
 
-const int HAAR_SHIFT_STEP_X = 2;
-const int HAAR_SHIFT_STEP_Y = 2;
-const int HAAR_SCALE_STEP_X = 3;
-const int HAAR_SCALE_STEP_Y = 2;
-const int FEATURE_MARGIN = 1;
-
-
-const double INV_AREA_R = 500.0;
-
-const int MAX_FEATURE_TYPE_NUM = 200;
-
 const int HFT_STEP1 = 100;
+
 typedef enum {
 	HFT_X_AB = 0,
 	HFT_Y_AB = 1,
@@ -48,15 +38,23 @@ typedef enum {
 	HFT_SQ_A_B = HFT_A_B + HFT_STEP1
 } FeatureTypeT;
 
+
 typedef struct
 {
+	CB_PointT tpl_size;
+
 	FeatureTypeT type;
-	int is_abs;
+	int abs;
 	CB_PointT pos1;
 	CB_PointT pos2;
 	CB_PointT size;
-	CB_PointT tpl_size;
 	double inv_area;
+
+	int bin_num;
+	double bin_min;
+	double bin_max;
+	double bin_width;
+	double inv_bin_width;
 }HaarFeatureInfoT;
 
 
@@ -66,44 +64,17 @@ public:
 	HaarFeature(void);
 	~HaarFeature(void);
 
-	int init(int w, int h, int type, int is_abs);
-	int getFeatureNum();
-	const float *extractBatchFeatures(FILE *fp);
-	int saveTrainingData(const unsigned char *pdata, const string &file_path);
-	static float computeFeature(IntegralImage &intg, const SubwinInfoT &subwin, const HaarFeatureInfoT &haar);
+	int loadFromFile(const FILE *fp, int template_w, int template_h);
+	int saveToFile(FILE *fp);
+	float computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin) const;
+	int computeFeatureIndex(const IntegralImage &intg, const SubwinInfoT &subwin) const;
+	int computeFeatureIndex(double feature_value) const;
 
-private:
-	void clearUp();
-	int getAllFeatureInfos(int is_extract_feature = 0, FILE *fp = NULL, float *pt_feature = NULL);
-	float extractFeature(const HaarFeatureInfoT &info);
-	int extractFeature(const IntegralImage &intg, SubwinInfoT &subwin_info, const HaarFeatureInfoT &info);
-	int extractOneTypeFeatures(int is_extract_feature, HaarFeatureInfoT &info, float *pt_feature);
-	int extractOneTypeFeatures45(int is_extract_feature, HaarFeatureInfoT &info, float *pt_feature);
-	int extractOneTypeFeaturesAB(int is_extract_feature, HaarFeatureInfoT &info, float *pt_feature);
+public:
 	static int slantToRect(const CB_SlantT &slant, CB_RectangleT &rect, const CB_PointT &image_size);
 	static inline int isPointValid(const CB_PointT &point, const CB_PointT &image_size);
 
-private:
-	IntegralImage intg;
-
-	float *pt_features;
-	int *pt_flags;
-
-	int template_w;
-	int template_h;
-
-	int feature_num;
-	int sample_num;
-
-	int feature_types;
-	int is_abs;
-
-	CB_PointT feature_sizes[MAX_FEATURE_TYPE_NUM];
-	int feature_inv_ratio[MAX_FEATURE_TYPE_NUM];
-
-	int feature_count;
-
-public:	
-	HaarFeatureInfoT *pt_feature_infos;
+public:
+	HaarFeatureInfoT info;
 };
 

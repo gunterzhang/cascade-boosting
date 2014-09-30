@@ -21,6 +21,7 @@ int PositiveExtractor::extractSamples(const TrainParamsT *pt_params)
 	CFileFind file_finder;
     bool is_working = file_finder.FindFile();
 	int count = 0;
+
 	while (is_working)
 	{
 		is_working = file_finder.FindNextFile();

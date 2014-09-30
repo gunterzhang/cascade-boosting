@@ -4,450 +4,57 @@
 
 HaarFeature::HaarFeature(void)
 {
-	feature_num = 0;
-	pt_features = NULL;
-	pt_feature_infos = NULL;
-
-	//HFT_X_Y
-	feature_sizes[HFT_X_AB].x = 2;
-	feature_sizes[HFT_X_AB].y = 1;
-	feature_inv_ratio[HFT_X_AB] = 1;
-	
-	feature_sizes[HFT_Y_AB].x = 1;
-	feature_sizes[HFT_Y_AB].y = 2;
-	feature_inv_ratio[HFT_Y_AB] = 1;
-
-	feature_sizes[HFT_X_ABA].x = 3;
-	feature_sizes[HFT_X_ABA].y = 1;
-	feature_inv_ratio[HFT_X_ABA] = 2;
-	
-	feature_sizes[HFT_Y_ABA].x = 1;
-	feature_sizes[HFT_Y_ABA].y = 3;
-	feature_inv_ratio[HFT_Y_ABA] = 2;
-
-	feature_sizes[HFT_X_ABBA].x = 4;
-	feature_sizes[HFT_X_ABBA].y = 1;
-	feature_inv_ratio[HFT_X_ABBA] = 2;
-	
-	feature_sizes[HFT_Y_ABBA].x = 1;
-	feature_sizes[HFT_Y_ABBA].y = 4;
-	feature_inv_ratio[HFT_Y_ABBA] = 2;
-
-	feature_sizes[HFT_XY_ABA].x = 3;
-	feature_sizes[HFT_XY_ABA].y = 3;
-	feature_inv_ratio[HFT_XY_ABA] = 8;
-
-	feature_sizes[HFT_XY_ABBA].x = 4;
-	feature_sizes[HFT_XY_ABBA].y = 4;
-	feature_inv_ratio[HFT_XY_ABBA] = 12;
-
-	//HFT_L_R
-	feature_sizes[HFT_L_AB].x = 2;
-	feature_sizes[HFT_L_AB].y = 1;
-	feature_inv_ratio[HFT_L_AB] = 1;
-	
-	feature_sizes[HFT_R_AB].x = 1;
-	feature_sizes[HFT_R_AB].y = 2;
-	feature_inv_ratio[HFT_R_AB] = 1;
-
-	feature_sizes[HFT_L_ABA].x = 3;
-	feature_sizes[HFT_L_ABA].y = 1;
-	feature_inv_ratio[HFT_L_ABA] = 2;
-	
-	feature_sizes[HFT_R_ABA].x = 1;
-	feature_sizes[HFT_R_ABA].y = 3;
-	feature_inv_ratio[HFT_R_ABA] = 2;
-
-	feature_sizes[HFT_L_ABBA].x = 4;
-	feature_sizes[HFT_L_ABBA].y = 1;
-	feature_inv_ratio[HFT_L_ABBA] = 2;
-	
-	feature_sizes[HFT_R_ABBA].x = 1;
-	feature_sizes[HFT_R_ABBA].y = 4;
-	feature_inv_ratio[HFT_R_ABBA] = 2;
-
-	//HFT_A_B
-	feature_sizes[HFT_A_B].x = 1;
-	feature_sizes[HFT_A_B].y = 1;
-	feature_inv_ratio[HFT_A_B] = 1;
-
-	//HFT_SQ_X_Y
-	feature_sizes[HFT_SQ_X_AB].x = 2;
-	feature_sizes[HFT_SQ_X_AB].y = 1;
-	feature_inv_ratio[HFT_SQ_X_AB] = 1;
-	
-	feature_sizes[HFT_SQ_Y_AB].x = 1;
-	feature_sizes[HFT_SQ_Y_AB].y = 2;
-	feature_inv_ratio[HFT_SQ_Y_AB] = 1;
-
-	feature_sizes[HFT_SQ_X_ABA].x = 3;
-	feature_sizes[HFT_SQ_X_ABA].y = 1;
-	feature_inv_ratio[HFT_SQ_X_ABA] = 2;
-	
-	feature_sizes[HFT_SQ_Y_ABA].x = 1;
-	feature_sizes[HFT_SQ_Y_ABA].y = 3;
-	feature_inv_ratio[HFT_SQ_Y_ABA] = 2;
-
-	feature_sizes[HFT_SQ_X_ABBA].x = 4;
-	feature_sizes[HFT_SQ_X_ABBA].y = 1;
-	feature_inv_ratio[HFT_SQ_X_ABBA] = 2;
-	
-	feature_sizes[HFT_SQ_Y_ABBA].x = 1;
-	feature_sizes[HFT_SQ_Y_ABBA].y = 4;
-	feature_inv_ratio[HFT_SQ_Y_ABBA] = 2;
-
-	feature_sizes[HFT_SQ_XY_ABA].x = 3;
-	feature_sizes[HFT_SQ_XY_ABA].y = 3;
-	feature_inv_ratio[HFT_SQ_XY_ABA] = 8;
-
-	feature_sizes[HFT_SQ_XY_ABBA].x = 4;
-	feature_sizes[HFT_SQ_XY_ABBA].y = 4;
-	feature_inv_ratio[HFT_SQ_XY_ABBA] = 12;
-
-	//HFT_SQ_A_B
-	feature_sizes[HFT_SQ_A_B].x = 1;
-	feature_sizes[HFT_SQ_A_B].y = 1;
-	feature_inv_ratio[HFT_SQ_A_B] = 1;
-
 }
 
 
 HaarFeature::~HaarFeature(void)
 {
-	clearUp();
 }
 
 
-void HaarFeature::clearUp()
+int HaarFeature::loadFromFile(const FILE *fp, int template_w, int template_h)
 {
-	if (pt_features != NULL)
-	{
-		delete []pt_features;
-		pt_features = NULL;
-	}
-	if (pt_feature_infos != NULL)
-	{
-		delete []pt_feature_infos;
-		pt_feature_infos = NULL;
-	}
-	feature_num = 0;
-}
+	info.tpl_size.x = template_w;
+	info.tpl_size.y = template_h;
 
+	fscanf((FILE *)fp, "%d %d %d %d %d %d %d %d %lf ",
+			&info.type, &info.abs,
+		    &info.pos1.x, &info.pos1.y,
+		    &info.pos2.x, &info.pos2.y,	
+			&info.size.x, &info.size.y, 
+			&info.inv_area);
 
-int HaarFeature::init(int w, int h, int type, int is_abs)
-{
-	clearUp();
+	fscanf((FILE*)fp, "%d %lf %lf %lf ", 
+		   &info.bin_num, &info.bin_min, &info.bin_max, &info.bin_width);
 
-	feature_types = type;
-	this->is_abs = is_abs;
-
-	template_w = w;
-	template_h = h;
-
-	intg.init(w, h, type);
-
-	feature_num = getAllFeatureInfos(-1);
-
-	pt_features = new float[feature_num];
-	pt_feature_infos = new HaarFeatureInfoT[feature_num];
-	
-	getAllFeatureInfos(0);
+	info.inv_bin_width = 1.0 / info.bin_width;
 
 	return 1;
 }
 
 
-const float *HaarFeature::extractBatchFeatures(FILE *fp)
+int HaarFeature::saveToFile(FILE *fp)
 {
-	getAllFeatureInfos(1, fp, pt_features);
-	return pt_features;
+	fprintf(fp, "%d %d %d %d %d %d %d %d %lf ",
+			info.type, info.abs,
+		    info.pos1.x, info.pos1.y,
+		    info.pos2.x, info.pos2.y,	
+			info.size.x, info.size.y, 
+			info.inv_area);
+
+	fprintf(fp, "%d %lf %lf %lf ", info.bin_num, info.bin_min, info.bin_max, info.bin_width);
+
+	return 1;
 }
 
 
-int HaarFeature::getFeatureNum()
-{
-	return feature_num;
-}
-
-
-int HaarFeature::getAllFeatureInfos(int is_extract_feature, FILE *fp, float *pt_feature)
-{
-	if (is_extract_feature > 0)
-	{
-		if (fp == NULL)
-		{
-			return -1;
-		}
-		intg.load(fp);
-	}
-
-	HaarFeatureInfoT info;
-	info.is_abs = is_abs;
-	info.tpl_size.x = template_w;
-	info.tpl_size.y = template_h;
-	info.pos2.x = 0;
-	info.pos2.y = 0;
-
-	feature_count = 0;
-
-	if ((feature_types & UPRIGHT_HAAR) > 0)
-	{
-		info.type = HFT_X_AB; 
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_Y_AB;
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_X_ABA; 
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_Y_ABA;
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_X_ABBA; 
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_Y_ABBA;
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_XY_ABA; 
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_XY_ABBA;
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-	}
-
-
-	if ((feature_types & UPRIGHT_SQ_HAAR) > 0)
-	{
-		info.type = HFT_SQ_X_AB; 
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_SQ_Y_AB;
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_SQ_X_ABA; 
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_SQ_Y_ABA;
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_SQ_X_ABBA; 
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_SQ_Y_ABBA;
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_SQ_XY_ABA; 
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-		info.type = HFT_SQ_XY_ABBA;
-		extractOneTypeFeatures(is_extract_feature, info, pt_feature);
-	}
-
-	if ((feature_types & SLANT_HAAR) > 0)
-	{
-		info.type = HFT_L_AB; 
-		extractOneTypeFeatures45(is_extract_feature, info, pt_feature);
-		info.type = HFT_R_AB;
-		extractOneTypeFeatures45(is_extract_feature, info, pt_feature);
-		info.type = HFT_L_ABA; 
-		extractOneTypeFeatures45(is_extract_feature, info, pt_feature);
-		info.type = HFT_R_ABA;
-		extractOneTypeFeatures45(is_extract_feature, info, pt_feature);
-		info.type = HFT_L_ABBA; 
-		extractOneTypeFeatures45(is_extract_feature, info, pt_feature);
-		info.type = HFT_R_ABBA;
-		extractOneTypeFeatures45(is_extract_feature, info, pt_feature);
-	}
-
-	if ((feature_types & UPRIGHT_FAR_HAAR) > 0)
-	{
-		info.type = HFT_A_B; 
-		extractOneTypeFeaturesAB(is_extract_feature, info, pt_feature);
-	}
-
-	if ((feature_types & UPRIGHT_SQ_FAR_HAAR) > 0)
-	{
-		info.type = HFT_SQ_A_B; 
-		extractOneTypeFeaturesAB(is_extract_feature, info, pt_feature);
-	}
-
-	if (is_extract_feature < 0)
-	{
-		feature_num = feature_count;
-		printf("feature Num = %d\n", feature_num);
-		getchar();
-	}
-
-	return feature_num;
-}
-
-
-int HaarFeature::extractOneTypeFeatures(int is_extract_feature, HaarFeatureInfoT &info, float *pt_feature)
-{
-	int type = info.type;
-	int x_r = feature_sizes[type].x;
-	int y_r = feature_sizes[type].y;
-	double inv_r = feature_inv_ratio[type];
-
-	info.pos1.y = FEATURE_MARGIN;
-	while (info.pos1.y < template_h - 1)
-	{
-		info.pos1.x = FEATURE_MARGIN;
-		while (info.pos1.x < template_w - 1)
-		{
-			info.size.y = 2;
-			while (info.pos1.y + y_r * info.size.y - 1 < template_h - FEATURE_MARGIN)
-			{
-				info.size.x = 2; 
-				while (info.pos1.x + x_r * info.size.x - 1 < template_w - FEATURE_MARGIN)
-				{
-					if (is_extract_feature == 0)
-					{
-						info.inv_area = INV_AREA_R / (info.size.x * info.size.y * inv_r);
-						pt_feature_infos[feature_count] = info;
-					}
-					else if (is_extract_feature > 0)
-					{
-						*(pt_feature + feature_count) = extractFeature(pt_feature_infos[feature_count]);
-					}
-					feature_count++;
-					info.size.x += HAAR_SCALE_STEP_X;
-				}
-				info.size.y += HAAR_SCALE_STEP_Y;
-			}
-			info.pos1.x += HAAR_SHIFT_STEP_X;
-		}
-		info.pos1.y += HAAR_SHIFT_STEP_Y;
-	}
-	return feature_count;
-}
-
-int HaarFeature::extractOneTypeFeatures45(int is_extract_feature, HaarFeatureInfoT &info, float *pt_feature)
-{
-	int type = info.type;
-	int L_r = feature_sizes[type].x;
-	int R_r = feature_sizes[type].y;
-	double inv_r = feature_inv_ratio[type] * 2;
-
-	CB_PointT image_size = {template_w, template_h};
-
-	info.pos1.y = FEATURE_MARGIN;
-	while (info.pos1.y < template_h - 1)
-	{
-		info.pos1.x = FEATURE_MARGIN;
-		while (info.pos1.x < template_w - 1)
-		{
-			info.size.y = 2;
-			while (info.pos1.x + R_r * info.size.y < template_w)
-			{
-				info.size.x = 2; 
-				while (info.pos1.x - L_r * info.size.x > 0)
-				{
-					CB_SlantT slant = {info.pos1.x, info.pos1.y, L_r * info.size.x, R_r * info.size.y};
-					CB_RectangleT rect;
-					int result = slantToRect(slant, rect, image_size);
-					if (result == 0)
-					{
-						info.size.x += HAAR_SCALE_STEP_X;
-						continue;
-					}
-					if (is_extract_feature == 0)
-					{
-						info.inv_area = INV_AREA_R / (info.size.x * info.size.y * inv_r);
-						pt_feature_infos[feature_count] = info;
-					}
-					else if (is_extract_feature > 0)
-					{
-						*(pt_feature + feature_count) = extractFeature(pt_feature_infos[feature_count]);
-					}
-					feature_count++;
-					info.size.x += HAAR_SCALE_STEP_X;
-				}
-				info.size.y += HAAR_SCALE_STEP_Y;
-			}
-			info.pos1.x += HAAR_SHIFT_STEP_X;
-		}
-		info.pos1.y += HAAR_SHIFT_STEP_Y;
-	}
-	return feature_count;
-}
-
-
-int HaarFeature::extractOneTypeFeaturesAB(int is_extract_feature, HaarFeatureInfoT &info, float *pt_feature)
-{
-	int type = info.type;
-	int x_r = feature_sizes[type].x;
-	int y_r = feature_sizes[type].y;
-	double inv_r = feature_inv_ratio[type];
-
-	info.pos1.y = FEATURE_MARGIN;
-	while (info.pos1.y < template_h - 1)
-	{
-		info.pos1.x = FEATURE_MARGIN;
-		while (info.pos1.x < template_w - 1)
-		{
-			info.size.y = 2;
-			while (info.pos1.y + y_r * info.size.y - 1 < template_h - FEATURE_MARGIN)
-			{
-				info.size.x = 2; 
-				while (info.pos1.x + x_r * info.size.x - 1 < template_w - FEATURE_MARGIN)
-				{
-					info.pos2.y = info.pos1.y;
-					info.pos2.x = info.pos1.x + info.size.x + HAAR_SHIFT_STEP_X;
-					while (info.pos2.x + x_r * info.size.x - 1 < template_w - FEATURE_MARGIN)
-					{
-						if (is_extract_feature == 0)
-						{
-							info.inv_area = INV_AREA_R / (info.size.x * info.size.y * inv_r);
-							pt_feature_infos[feature_count] = info;
-						}
-						else if (is_extract_feature > 0)
-						{
-							*(pt_feature + feature_count) = extractFeature(pt_feature_infos[feature_count]);
-						}
-						info.pos2.x += HAAR_SHIFT_STEP_X * 2;
-						feature_count++;
-					}
-
-					info.pos2.x = info.pos1.x;
-					info.pos2.y = info.pos1.y + info.size.y + HAAR_SHIFT_STEP_Y;
-					while (info.pos2.y + y_r * info.size.y - 1 < template_h - FEATURE_MARGIN)
-					{
-						if (is_extract_feature == 0)
-						{
-							info.inv_area = INV_AREA_R / (info.size.x * info.size.y * inv_r);
-							pt_feature_infos[feature_count] = info;
-						}
-						else if (is_extract_feature > 0)
-						{
-							*(pt_feature + feature_count) = extractFeature(pt_feature_infos[feature_count]);
-						}
-						info.pos2.y += HAAR_SHIFT_STEP_Y * 2;
-						feature_count++;
-					}
-					info.size.x += HAAR_SCALE_STEP_X;
-				}
-				info.size.y += HAAR_SCALE_STEP_Y;
-			}
-			info.pos1.x += HAAR_SHIFT_STEP_X;
-		}
-		info.pos1.y += HAAR_SHIFT_STEP_Y;
-	}
-	return feature_count;
-}
-
-
-float HaarFeature::extractFeature(const HaarFeatureInfoT &info)
-{
-	SubwinInfoT subwin;
-	subwin.image_size.x = intg.width;
-	subwin.image_size.y = intg.height;
-	subwin.win_size = subwin.image_size;
-	subwin.win_pos.x = 0;
-	subwin.win_pos.y = 0;
-
-	intg.computeSubwinMeanVar(subwin);
-
-	float feature_value = computeFeature(intg, subwin, info);
-	return feature_value;
-}
-
-
-float HaarFeature::computeFeature(IntegralImage &intg, const SubwinInfoT &subwin, const HaarFeatureInfoT &haar)
+float HaarFeature::computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin) const
 {
 	int cur_scan_pos_x = subwin.win_pos.x;
 	int cur_scan_pos_y = subwin.win_pos.y;
 
-	double cur_scan_scale = (double)subwin.win_size.x / haar.tpl_size.x;
-	HaarFeatureInfoT haar_feature = haar;
+	double cur_scan_scale = (double)subwin.win_size.x / info.tpl_size.x;
+	HaarFeatureInfoT haar_feature = info;
 
 	haar_feature.pos1.x = haar_feature.pos1.x * cur_scan_scale;
 	haar_feature.pos1.y = haar_feature.pos1.y * cur_scan_scale;
@@ -456,7 +63,7 @@ float HaarFeature::computeFeature(IntegralImage &intg, const SubwinInfoT &subwin
 	haar_feature.size.x *= cur_scan_scale;
 	haar_feature.size.y *= cur_scan_scale;
 
-	double real_scale_square = (double)(haar_feature.size.x * haar_feature.size.y) / (haar.size.x * haar.size.y);
+	double real_scale_square = (double)(haar_feature.size.x * haar_feature.size.y) / (info.size.x * info.size.y);
 
 	double result;
 	switch (haar_feature.type)
@@ -932,13 +539,34 @@ float HaarFeature::computeFeature(IntegralImage &intg, const SubwinInfoT &subwin
 	result = result / subwin.var;
 	result /= real_scale_square;
 
-	if (haar_feature.type <HFT_STEP1 && haar.is_abs == 1)
+	if (haar_feature.type <HFT_STEP1 && haar_feature.abs == 1)
 	{
 		result = fabs(result);
 	}
 	return result;
 }
 
+
+int HaarFeature::computeFeatureIndex(const IntegralImage &intg, const SubwinInfoT &subwin) const
+{
+	double feature_value = computeFeature(intg, subwin);
+
+	int bin_index = computeFeatureIndex(feature_value);
+	return bin_index;
+}
+
+
+int HaarFeature::computeFeatureIndex(double feature_value) const
+{
+	int bin_index;
+	if (feature_value < info.bin_min)
+		bin_index = 0;
+	else if (feature_value > info.bin_max)
+		bin_index = info.bin_num - 1;
+	else 
+		bin_index = (feature_value - info.bin_min) * info.inv_bin_width + 1;
+	return bin_index;
+}
 
 int HaarFeature::slantToRect(const CB_SlantT &slant, CB_RectangleT &rect, const CB_PointT &image_size)
 {

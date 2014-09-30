@@ -81,6 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>boosting</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -159,11 +160,14 @@
   <ItemGroup>
     <ClInclude Include="Boosting.h" />
     <ClInclude Include="Cascade.h" />
+    <ClInclude Include="FernsFeature.h" />
+    <ClInclude Include="HaarFeatureHub.h" />
     <ClInclude Include="ObjMerger.h" />
     <ClInclude Include="Detector.h" />
     <ClInclude Include="HaarFeature.h" />
     <ClInclude Include="IntegralImage.h" />
     <ClInclude Include="NegativeExtractor.h" />
+    <ClInclude Include="PatternModel.h" />
     <ClInclude Include="PositiveExtractor.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -174,12 +178,15 @@
   <ItemGroup>
     <ClCompile Include="Boosting.cpp" />
     <ClCompile Include="Cascade.cpp" />
+    <ClCompile Include="FernsFeature.cpp" />
+    <ClCompile Include="HaarFeatureHub.cpp" />
     <ClCompile Include="ObjMerger.cpp" />
     <ClCompile Include="Detector.cpp" />
     <ClCompile Include="HaarFeature.cpp" />
     <ClCompile Include="IntegralImage.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NegativeExtractor.cpp" />
+    <ClCompile Include="PatternModel.cpp" />
     <ClCompile Include="PositiveExtractor.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -15,10 +15,10 @@ public:
 	const double *computeSquareIntegralImage_0(const uchar *pt_data);
 	const double *computeSquareIntegralImage_45(const uchar *pt_data);
 
-	double getRectValue_0(const CB_RectT &rect);
-	double getRectSqValue_0(const CB_RectT &rect);
-	double getRectValue_45(const CB_RectangleT &rect);
-	double getRectSqValue_45(const CB_RectangleT &rect);
+	double getRectValue_0(const CB_RectT &rect) const;
+	double getRectSqValue_0(const CB_RectT &rect) const;
+	double getRectValue_45(const CB_RectangleT &rect) const;
+	double getRectSqValue_45(const CB_RectangleT &rect) const;
 
 	int load(FILE *fp);
 	int save(FILE *fp);
@@ -27,10 +27,10 @@ public:
 
 private:
 	void clearUp();
-	inline double getValue_0(const CB_PointT &pos);
-	inline double getValue_45(const CB_PointT &pos);
-	inline double getSqureValue_0(const CB_PointT &pos);
-	inline double getSqureValue_45(const CB_PointT &pos);
+	inline double getValue_0(const CB_PointT &pos) const;
+	inline double getValue_45(const CB_PointT &pos) const;
+	inline double getSqureValue_0(const CB_PointT &pos) const;
+	inline double getSqureValue_45(const CB_PointT &pos) const;
 
 public:
 	double *pt_intg_0;

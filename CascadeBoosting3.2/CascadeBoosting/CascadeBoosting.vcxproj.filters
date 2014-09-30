@@ -57,6 +57,15 @@
     <ClInclude Include="ObjMerger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FernsFeature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HaarFeatureHub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PatternModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -93,6 +102,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ObjMerger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FernsFeature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HaarFeatureHub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PatternModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

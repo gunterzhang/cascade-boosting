@@ -7,106 +7,85 @@
 
 Cascade::Cascade(void)
 {
-	model.pt_weak_learners = NULL;
 }
 
 
 Cascade::~Cascade(void)
 {
-	if (model.pt_weak_learners != NULL)
-	{
-		delete []model.pt_weak_learners;
-	}
 }
 
 
-int Cascade::train(TrainParamsT &params)
+int Cascade::work(TrainParamsT &params)
 {
-	int rst = init(params);
+	pt_params = &params;
+
+	if (params.is_train_test == 1)
+	{
+		train();
+	}
+	else if (params.is_train_test == 0)
+	{
+		test();
+	}
+	return 1;
+}
+
+
+int Cascade::train()
+{
+	int rst = init();
 	if (rst <= 0)
 	{
 		return rst;
 	}
 
 	extractPositiveSamples();
-	boosting.init(params);
+	boosting.init(*pt_params);
 
 	int is_new_stage = 1;
-	while (model.stage_num < params.stage_num && model.weak_learner_num < params.max_weak_learner_num)
+	while (model.stage_num < pt_params->stage_num && 
+		   model.weak_learner_num < pt_params->max_weak_learner_num)
 	{
-		if (is_new_stage > 0)
-		{
-			extractNegativeSamples();
-			if (params.negative_num < params.positive_num)
-			{
-				break;
-			}
-			boosting.trainNewStage(model);
-			if (model.stage_num >= 1)
-			{
-				boosting.getStrongLearnerThd(model);
-			}
-		}
-
 		printf( "===========  Training stage:%d, round:%d  ===========\n", 
 			    (model.stage_num + 1), (model.weak_learner_num + 1) );
 
+		if (is_new_stage > 0)
+		{
+			boosting.filterTrainingSamples(model);
+			extractNegativeSamples();
+			if (pt_params->negative_num < pt_params->positive_num)
+			{
+				break;
+			}
+			boosting.prepareNewStage(model);
+		}
+		MessageBeep(MB_OK);
 		boosting.trainWeakLearner(model);
-		model.weak_learner_num++;
 
-		double detection_rate;
-		double false_alarm;
-		boosting.getPerformance(detection_rate, false_alarm);
-	
-		if (isStageLearned(detection_rate, false_alarm) == 0) //stong learner not ready
+		is_new_stage = 0;
+		if (isStageLearned() > 0)
 		{
-			is_new_stage = 0;
-			continue;
+			updateStageModel();
+			is_new_stage = 1;
 		}
-
-		//new stage learned
-		is_new_stage = 1;
-		model.stage_idx[model.stage_num] = model.weak_learner_num - 1;
-		double thd = model.pt_weak_learners[model.weak_learner_num - 1].info.classify_thd;
-		model.stage_thd[model.stage_num] = thd;
-		model.stage_num++;
-		saveTrainedStages();
-
-		if (model.stage_num == params.stage_num)
-		{
-			break;
-		}
-
-		printf("--------------Filter training samples...--------------\n");
-		boosting.filterTrainingSamples(model);
 	}
 	return 1;
 }
 
 
-int Cascade::init(TrainParamsT &params)
+int Cascade::init()
 {
-	pt_params = &params;
-
-	//load config file
-	int rst = loadConfig(params);
+	int rst = loadConfig();
 	if (rst <= 0)
 	{
 		return rst;
 	}
 
-	params.model_path = params.work_dir + "model.txt";
-	params.stage_path = params.work_dir + params.class_label + ".model";
-
+	TrainParamsT &params = *pt_params;
+	params.model_path = params.work_dir + params.class_label + ".model";
+	params.new_model_path = params.work_dir + params.class_label + ".model2";
 	params.positive_data_path = params.work_dir + params.class_label + ".intg";
-	params.negative_data_path = params.work_dir + "neg.intg";
-
-	params.positive_feature_path = params.work_dir + "positive.ft";
-	params.negative_feature_path = params.work_dir + "negative.ft";
-
-	params.positive_weight_path = params.work_dir + "positive_weight.txt";
-	params.negative_weight_path = params.work_dir + "negative_weight.txt";
-
+	params.negative_data_path = params.work_dir + "negative.intg";
 	params.train_log_path = params.work_dir + "log.txt";
 
 	params.extracted_negative_dir = params.work_dir + "neg_icons\\";
@@ -121,70 +100,131 @@ int Cascade::init(TrainParamsT &params)
 		return rst;
 	}
 
-	if (model.pt_weak_learners == NULL)
-	{
-		model.pt_weak_learners = new WeakLearner[params.max_weak_learner_num];
-	}
-
 	initModel();
-	saveTrainedStages();
 	return 1;
 }
 
 
 int Cascade::initModel()
 {
-	FILE *fp = fopen(pt_params->stage_path.c_str(), "rt");
-	if (fp == NULL)
-	{
-		model.stage_num = 0;
-		model.weak_learner_num = 0;
-		model.feature_type = pt_params->feature_type;
-		model.template_w = pt_params->template_w;
-		model.template_h = pt_params->template_h;
-		return 0;
-	}
+	model.init(pt_params->max_weak_learner_num, 
+		       pt_params->feature_type, 
+		       pt_params->template_w, 
+			   pt_params->template_h);
 
-	fscanf(fp, "%d %d\n", &model.template_w, &model.template_h);
-	fscanf(fp, "%d\n", &model.feature_type);
-	fscanf(fp, "%d\n", &model.weak_learner_num);
-	model.pt_weak_learners = new WeakLearner[model.weak_learner_num];
-
-	fscanf(fp, "%d\n", &model.stage_num);
-	for (int i=0; i<model.stage_num; i++)
-	{
-		fscanf(fp, "%d %lf\n", &model.stage_idx[i], &model.stage_thd[i]);
-	}
-
-	for (int i=0; i<model.weak_learner_num; i++)
-	{
-		WeakLearnerInfoT &info = model.pt_weak_learners[i].info;
-		HaarFeatureInfoT &haar_info = info.haar_info;
-		fscanf(fp, "%d %d %d %d %d %d %d %d %lf", 
-			   &haar_info.type, &haar_info.is_abs,
-			   &haar_info.pos1.x, &haar_info.pos1.y,
-			   &haar_info.pos2.x, &haar_info.pos2.y,
-			   &haar_info.size.x, &haar_info.size.y, 
-			   &haar_info.inv_area);
-
-		haar_info.tpl_size.x = model.template_w;
-		haar_info.tpl_size.y = model.template_h;
-		fscanf(fp, "%d %lf %lf %lf ", &info.bin_num, &info.bin_min, &info.bin_max, &info.bin_width);
-		for (int i=0; i<info.bin_num; i++)
-		{
-			fscanf(fp, "%lf ", &info.output[i]);
-		}
-		fscanf(fp, "%lf\n", &info.classify_thd);
-	}
-	fclose(fp);
+	model.saveToFile(pt_params->model_path);
 
 	return 1;
 }
 
 
-int Cascade::loadConfig(TrainParamsT &params)
+int Cascade::updateStageModel()
 {
-	FILE *fp = fopen(params.share_config_path.c_str(), "rt");
+	model.addNewStage();
+	model.saveToFile(pt_params->model_path);
+
+	return 1;
+}
+
+
+int Cascade::extractPositiveSamples()
+{
+	printf("------------Extracting positive samples...------------\n");
+	pt_params->positive_num = pos_extractor.extractSamples(pt_params);
+	pt_params->ori_positive_num = pt_params->positive_num;
+	return 1;
+}
+
+
+int Cascade::extractNegativeSamples()
+{
+	FILE *fp = fopen(pt_params->train_log_path.c_str(), "at");
+	fprintf(fp, "stage:%d, detection rate: %lf, ", 
+		    model.stage_num, (double)pt_params->positive_num / pt_params->ori_positive_num);
+	fclose(fp);
+
+	printf("------------Extracting negative samples...------------\n");
+	pt_params->negative_num = boosting.getSampleNum(pt_params->negative_data_path);
+
+	int aim_num = max(pt_params->min_negative_num, pt_params->positive_num); 
+	int diff_num = aim_num - pt_params->negative_num;
+	double rate = (double)diff_num / (double)pt_params->positive_num;
+
+	if (rate > 0)
+	{
+		pt_params->negative_num += neg_extractor.extractSamples(diff_num, &model);
+	}
+	return 1;
+}
+
+
+int Cascade::isStageLearned()
+{
+	double detection_rate;
+	double false_alarm;
+	boosting.getPerformance(detection_rate, false_alarm);
+
+	int is_stage_learned = 0;
+	if ( detection_rate > pt_params->detection_rates[0] && 
+		 false_alarm < pt_params->false_alarms[0] )
+	{
+		is_stage_learned = 1;
+	}
+
+	return is_stage_learned;
+}
+
+int Cascade::test()
+{
+	int rst = loadConfig();
+	if (rst <= 0)
+	{
+		return rst;
+	}
+
+	Detector detector;
+	int result = detector.init(pt_params->model_path);
+	if (result == 0)
+	{
+		return 0;
+	}
+
+	DetectorParamT param;
+	param.min_win_w = 60;
+	param.max_win_w = 250;
+	param.resize_w = 0;
+	param.resize_h = 0;
+	param.scan_shift_step = 2;
+	param.scan_scale_step = 1.2;
+	param.hot_rect.top = pt_params->neg_start_y_r * 100;
+	param.hot_rect.bottom = pt_params->neg_end_y_r * 100;
+	param.hot_rect.left = pt_params->neg_start_x_r * 100;
+	param.hot_rect.right = pt_params->neg_end_x_r * 100;
+
+	detector.setScanParams(&param);
+
+	string src_folder_dir = pt_params->test_src_path + "\\";
+	if (access(src_folder_dir.c_str(), 0) == -1)
+	{
+		_mkdir(src_folder_dir.c_str());
+	}
+
+	string dst_folder_dir = pt_params->test_dst_path + pt_params->class_label + "\\";
+	if (access(pt_params->test_dst_path.c_str(), 0) == -1)
+	{
+		_mkdir(pt_params->test_dst_path.c_str());
+	}
+
+	detector.batchDetect(src_folder_dir, dst_folder_dir);
+
+	return 1;
+}
+
+int Cascade::loadConfig()
+{
+	TrainParamsT &params = *pt_params;
+
+	FILE *fp = fopen(params.config_path.c_str(), "rt");
 	if (fp == NULL)
 	{
 		printf("Can't open configure file: %s\n", params.config_path.c_str());
@@ -255,22 +295,12 @@ int Cascade::loadConfig(TrainParamsT &params)
 			fscanf(fp, "%d", &params.feature_abs);
 			printf("FeatureAbs:      %d\n", params.feature_abs);
 		}
-		else if (strcmp(tmp_str, "ExtractPositive:") == 0)
-		{
-			fscanf(fp, "%d", &params.is_extract_positive);
-			printf("ExtractPositive: %d\n", params.is_extract_positive);
-		}
 		else if (strcmp(tmp_str, "PositivePath:") == 0)
 		{
 			fscanf(fp, "%s", tmp_str);
 			params.positive_pool_dir = tmp_str;
 			params.positive_pool_dir += "\\" + params.class_label + "\\";
 			printf("PositivePath:    %s\n", params.positive_pool_dir.c_str());
-		}
-		else if(strcmp(tmp_str, "SaveFeatures:") == 0)
-		{
-			fscanf(fp, "%d", &params.is_save_feature2file);
-			printf("SaveFeatures:    %d\n", params.is_save_feature2file);
 		}
 		else if(strcmp(tmp_str, "Neg_Start_X_R:") == 0)
 		{
@@ -326,153 +356,8 @@ int Cascade::loadConfig(TrainParamsT &params)
 
 	fclose(fp);
 	printf("Push any key to start training\n");
+	MessageBeep(MB_OK);
 	getchar();
 
 	return 1;
-}
-
-
-int Cascade::saveTrainedModel()
-{
-	FILE *fp = fopen(pt_params->model_path.c_str(), "wt");
-	fprintf(fp, "%d\n", model.weak_learner_num);
-	fclose(fp);
-
-	for (int i=0; i<model.weak_learner_num; i++)
-	{
-		model.pt_weak_learners[i].saveToFile(pt_params->model_path);
-	}
-	return 1;
-}
-
-
-int Cascade::saveTrainedStages()
-{
-	FILE *fp = fopen(pt_params->stage_path.c_str(), "wt");
-	fprintf(fp, "%d %d\n", pt_params->template_w, pt_params->template_h);
-	fprintf(fp, "%d\n", model.feature_type);
-	fprintf(fp, "%d\n", model.weak_learner_num);
-	fprintf(fp, "%d\n", model.stage_num);
-
-	for (int i=0; i<model.stage_num; i++)
-	{
-		fprintf(fp, "%d %lf\n", model.stage_idx[i], model.stage_thd[i]);
-	}
-	fclose(fp);
-	for (int i=0; i<model.weak_learner_num; i++)
-	{
-		model.pt_weak_learners[i].saveToFile(pt_params->stage_path);
-	}
-
-	return 1;
-}
-
-
-int Cascade::extractPositiveSamples()
-{
-	printf("------------Extracting positive samples...------------\n");
-	if (pt_params->is_extract_positive == 0)
-	{
-		pt_params->positive_num = getSampleNum(pt_params->positive_data_path);
-		return 1;
-	}
-
-	pt_params->positive_num = pos_extractor.extractSamples(pt_params);
-	pt_params->ori_positive_num = pt_params->positive_num;
-	return 1;
-}
-
-
-int Cascade::extractNegativeSamples()
-{
-	FILE *fp = fopen(pt_params->train_log_path.c_str(), "at");
-	fprintf(fp, "stage:%d, detection rate: %lf, ", 
-		    model.stage_num, (double)pt_params->positive_num / pt_params->ori_positive_num);
-	fclose(fp);
-
-	printf("------------Extracting negative samples...------------\n");
-	pt_params->negative_num = getSampleNum(pt_params->negative_data_path);
-
-	int aim_num = max(pt_params->min_negative_num, pt_params->positive_num); 
-	int diff_num = aim_num - pt_params->negative_num;
-	double rate = (double)diff_num / (double)pt_params->positive_num;
-
-	if (rate > 0.01)
-	{
-		pt_params->negative_num += neg_extractor.extractSamples(diff_num, &model);
-	}
-	return 1;
-}
-
-
-int Cascade::isStageLearned(double detection_rate, double false_alarm)
-{
-	if ( detection_rate > pt_params->detection_rates[0] && 
-		 false_alarm < pt_params->false_alarms[0] )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-
-int Cascade::getSampleNum(const string &path)
-{
-	FILE *fp = fopen(path.c_str(), "rb");
-	if (fp == NULL)
-	{
-		return 0;
-	}
-	
-	int count = 0;
-	IntegralImage intg;
-
-	while(true)
-	{
-		if (intg.load(fp) == 0)
-		{
-			break;
-		}
-		count++;
-	}
-
-	fclose(fp);
-	return count;
-}
-
-
-int Cascade::batchTest(int num, const string &data_path)
-{
-	Detector detector;
-	detector.init(&model);
-
-	FILE *fp = fopen(data_path.c_str(), "rb");
-	if (fp == NULL)
-	{
-		return -1;
-	}
-
-	IntegralImage intg;
-	int count = 0;
-	for (int i=0; i<num; i++)
-	{
-		intg.load(fp);
-		SubwinInfoT subwin;
-		subwin.image_size.x = intg.width;
-		subwin.image_size.y = intg.height;
-		subwin.win_size.x = intg.width;
-		subwin.win_size.y = intg.height;
-		subwin.win_pos.x = 0;
-		subwin.win_pos.y = 0;
-		int result = detector.test(intg, subwin);
-		if (result > 0)
-		{
-			count++;
-		}
-	}
-	fclose(fp);
-	return count;
 }
