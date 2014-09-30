@@ -19,6 +19,10 @@ public:
 	int init(int w, int h, int type, int is_abs);
 	int getFeatureNum();
 	const HaarFeatureValueT *extractAllFeatures(FILE *fp);
+	int train(int pos_num, HaarFeatureValueT *pt_pos_haar_values,
+		      int neg_num, HaarFeatureValueT *pt_neg_haar_values,
+			  int bin_num);
+
 
 private:
 	void clearUp();

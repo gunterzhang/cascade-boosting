@@ -14,19 +14,17 @@ public:
 	int prepareNewStage(PatternModel &model);
 	int trainWeakLearner(PatternModel &model);
 	void getPerformance(double &detection_rate, double &false_alarm);
-	double getStrongLearnerThd(const PatternModel &model);
 	void filterTrainingSamples(const PatternModel &model);
 	int getSampleNum(const string &path);
 
 private:
 	int clearUp();
 	int initWeights();
-	int extractFeatures(int sample_num, const string &data_path, HaarFeatureValueT **pt_features);
+	int extractFeatures(int sample_num, const string &data_path, HaarFeatureValueT *pt_features);
 	int reweight(PatternModel &model);
-	void packFeatures();
-	void discretization(int feature_idx);
 	int learnOneWeakLearner(WeakLearner &weak_learner);
 	int updateWeights(const WeakLearner &weak_learner, int iteration_idx);
+	double getStrongLearnerThd(const PatternModel &model);
 	double adjustThreshold(double detection_rate_aim, double false_alarm_aim);
 	double computeDetectionRate(double thd);
 	double computeFalseAlarm(double thd);
@@ -45,8 +43,8 @@ private:
 	int positive_num;
 	int negative_num;
 
-	HaarFeatureValueT **positive_features;
-	HaarFeatureValueT **negative_features;
+	HaarFeatureValueT *positive_features;
+	HaarFeatureValueT *negative_features;
 
 	double *positive_weights;
 	double *negative_weights;

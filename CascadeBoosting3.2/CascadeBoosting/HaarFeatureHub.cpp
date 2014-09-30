@@ -448,3 +448,72 @@ float HaarFeatureHub::extractFeature(const HaarFeature &haar)
 	float feature_value = haar.computeFeature(intg, subwin);
 	return feature_value;
 }
+
+
+int HaarFeatureHub::train(int pos_num, HaarFeatureValueT *pt_pos_haar_values,
+	                      int neg_num, HaarFeatureValueT *pt_neg_haar_values,
+						  int bin_num)
+{
+	for (int i=0; i<feature_num; i++)
+	{
+		printf("FeatureID = %d -- %d\r", feature_num, i+1);
+		HaarFeature &haar = pt_haars[i];
+		HaarFeatureInfoT &info = haar.info;
+
+		//-------------------------------------
+		double min_positive_value = 999999;
+		double max_positive_value = -999999;
+
+		for (int j=0; j<pos_num; j++)
+		{
+			int idx = j * feature_num + i;
+			double value = pt_pos_haar_values[idx].value;
+			if (value < min_positive_value) 
+				min_positive_value = value;
+
+			if (value > max_positive_value)
+				max_positive_value = value;
+		}				
+
+		//-------------------------------------
+		double min_negative_value = 999999;
+		double max_negative_value = -999999;
+
+		for (int j=0; j<neg_num; j++)
+		{
+			int idx = j * feature_num + i;
+			double value = pt_neg_haar_values[idx].value;
+			if (value < min_negative_value) 
+				min_negative_value = value;
+
+			if (value > max_negative_value) 
+				max_negative_value = value;
+		}				
+		
+		//-------------------------------------
+		info.bin_num = bin_num;
+		info.bin_max = ceil(min(max_positive_value, max_negative_value));
+		info.bin_min = floor(max(min_positive_value, min_negative_value));
+		info.bin_width = (info.bin_max - info.bin_min) / double(info.bin_num - 2);
+		info.inv_bin_width = 1.0 / double(info.bin_width);
+	
+		for (int j=0; j<pos_num; j++)
+		{
+			int idx_v = j * feature_num + i;
+			double value = pt_pos_haar_values[idx_v].value;
+
+			int idx_i = i * pos_num + j;
+			pt_pos_haar_values[idx_i].index = haar.computeFeatureIndex(value);
+		}
+
+		for (int j=0; j<neg_num; j++)
+		{
+			int idx_v = j * feature_num + i;
+			double value = pt_neg_haar_values[idx_v].value;
+
+			int idx_i = i * neg_num + j;
+			pt_neg_haar_values[idx_i].index = haar.computeFeatureIndex(value);
+		}
+	}
+	return 1;
+}
