@@ -117,8 +117,8 @@ int Boosting::prepareNewStage(PatternModel &model)
 	negative_num = pt_params->negative_num;
 
 	printf("------------Extracting Haar Features...------------\n");
-	extractFeatures(positive_num, pt_params->positive_data_path, positive_features);
-	extractFeatures(negative_num, pt_params->negative_data_path, negative_features);
+	haar_hub.extractFeatures(positive_num, pt_params->positive_data_path, positive_features);
+	haar_hub.extractFeatures(negative_num, pt_params->negative_data_path, negative_features);
 
 	haar_hub.train(positive_num, positive_features,
 		           negative_num, negative_features,
@@ -474,26 +474,6 @@ int Boosting::reweight(PatternModel &model)
 	{
 		updateWeights(model.pt_weak_learners[i], i);
 	}
-	return 1;
-}
-
-
-int Boosting::extractFeatures(int sample_num, const string &data_path, HaarFeatureValueT *pt_features)
-{
-	FILE *fp = fopen(data_path.c_str(), "rb");
-	if (fp == NULL)
-	{
-		return 0;
-	}
-	for (int i=0; i<sample_num; i++)
-	{
-		printf("%d -- %d\r", sample_num, i+1);
-		const HaarFeatureValueT *pt_cur_feature = haar_hub.extractAllFeatures(fp);
-		memcpy(pt_features + i * total_feature_num, pt_cur_feature, total_feature_num * sizeof(pt_features[0]));
-	}
-	fclose(fp);
-
-	printf("\n");
 	return 1;
 }
 

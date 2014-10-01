@@ -517,3 +517,23 @@ int HaarFeatureHub::train(int pos_num, HaarFeatureValueT *pt_pos_haar_values,
 	}
 	return 1;
 }
+
+
+int HaarFeatureHub::extractFeatures(int sample_num, const string &data_path, HaarFeatureValueT *pt_features)
+{
+	FILE *fp = fopen(data_path.c_str(), "rb");
+	if (fp == NULL)
+	{
+		return 0;
+	}
+	for (int i=0; i<sample_num; i++)
+	{
+		printf("%d -- %d\r", sample_num, i+1);
+		const HaarFeatureValueT *pt_cur_feature = extractAllFeatures(fp);
+		memcpy(pt_features + i * feature_num, pt_cur_feature, feature_num * sizeof(pt_features[0]));
+	}
+	fclose(fp);
+
+	printf("\n");
+	return 1;
+}

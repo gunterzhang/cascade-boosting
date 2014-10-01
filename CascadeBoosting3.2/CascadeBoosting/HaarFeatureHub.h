@@ -22,7 +22,7 @@ public:
 	int train(int pos_num, HaarFeatureValueT *pt_pos_haar_values,
 		      int neg_num, HaarFeatureValueT *pt_neg_haar_values,
 			  int bin_num);
-
+	int extractFeatures(int sample_num, const string &data_path, HaarFeatureValueT *pt_features);
 
 private:
 	void clearUp();

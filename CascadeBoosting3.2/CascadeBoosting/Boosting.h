@@ -20,7 +20,6 @@ public:
 private:
 	int clearUp();
 	int initWeights();
-	int extractFeatures(int sample_num, const string &data_path, HaarFeatureValueT *pt_features);
 	int reweight(PatternModel &model);
 	int learnOneWeakLearner(WeakLearner &weak_learner);
 	int updateWeights(const WeakLearner &weak_learner, int iteration_idx);
