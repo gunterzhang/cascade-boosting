@@ -1,6 +1,7 @@
 #pragma once
-#include "TrainParams.h"
+#include "Utils.h"
 #include "WeakLearner.h"
+#include "FernFeature.h"
 
 
 class PatternModel
@@ -9,24 +10,24 @@ public:
 	PatternModel(void);
 	~PatternModel(void);
 
-	int init(int max_wl_num, int feature_type, int template_w, int template_h);
+	int init(int max_wl_num, const FeatureParamT *ptr_param, FeatureTypeE type);
 	int loadFromFile(const string &file_path);
 	int saveToFile(const string &file_path);
 	int addNewStage();
 
 private:
-	void clearUp();
+	void cleanUp();
 
 public:
-	int feature_type;
-	int template_w;
-	int template_h;
-
+	FeatureParamT *p_ft_param;
 	int stage_num;
 	int stage_idx[MAX_CASCADE_STAGE_NUM];
 	double stage_thd[MAX_CASCADE_STAGE_NUM];
 
 	int weak_learner_num;
-	WeakLearner *pt_weak_learners;
+	Feature *p_features;
+	WeakLearner *p_weak_learners;
+
+	FeatureTypeE feature_type;
 };
 

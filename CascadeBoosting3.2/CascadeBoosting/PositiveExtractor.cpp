@@ -17,6 +17,9 @@ int PositiveExtractor::extractSamples(const TrainParamsT *pt_params)
 {
 	IntegralImage intg;
 
+	CB_PointT tpl_size = pt_params->ptr_ft_param->getTemplateSize();
+	int feature_types = pt_params->ptr_ft_param->getFeatureTypes();
+
 	_chdir(pt_params->positive_pool_dir.c_str());
 	CFileFind file_finder;
     bool is_working = file_finder.FindFile();
@@ -44,12 +47,12 @@ int PositiveExtractor::extractSamples(const TrainParamsT *pt_params)
 		int width = image.cols;
 		int height = image.rows;
 
-		if (width < pt_params->template_w || height < pt_params->template_h)
+		if (width < tpl_size.x || height < tpl_size.y)
 		{
 			continue;
 		}
 	
-		intg.init(width, height, pt_params->feature_type);
+		intg.init(width, height, pt_params->ptr_ft_param->getFeatureTypes());
 		intg.compute(image.data);
 		intg.save(pt_params->positive_data_path);
 		count++;

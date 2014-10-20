@@ -1,8 +1,8 @@
 #pragma once
-#include "TrainParams.h"
-#include "Boosting.h"
+#include "Utils.h"
 #include "ObjMerger.h"
 #include "PatternModel.h"
+#include "FernFeatureHub.h"
 
 typedef struct
 {
@@ -36,7 +36,7 @@ private:
 
 private:
 	PatternModel model;
-	PatternModel *pt_model;
+	PatternModel *ptr_model;
 	DetectorParamT param;
 	ObjMerger merger;
 };

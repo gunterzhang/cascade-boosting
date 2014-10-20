@@ -1,0 +1,6 @@
+FernCellNum:     2
+HaarBinNum:      8
+TemplateWidth:   60
+TemplateHeight:  26
+FeatureType:     29
+FeatureAbs:      1

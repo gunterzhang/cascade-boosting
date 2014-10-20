@@ -27,9 +27,9 @@ int Detector::setScanParams(const DetectorParamT *pt_param)
 }
 
 
-int Detector::init(PatternModel *pt_model)
+int Detector::init(PatternModel *ptr_model)
 {
-	this->pt_model = pt_model;
+	this->ptr_model = ptr_model;
 	return 1;
 }
 
@@ -45,7 +45,7 @@ int Detector::init(const string &model_path)
 
 	model.loadFromFile(model_path);
 
-	pt_model = &model;
+	ptr_model = &model;
 
 	MergerParamT merger_param;
 	merger_param.min_hit = 3;
@@ -107,6 +107,11 @@ int Detector::batchDetect(const string &src_image_folder, const string &dst_imag
 			resize(image, image, size);
 		}
 
+		param.hot_rect.top *= (image.rows / 100);
+		param.hot_rect.bottom *= (image.rows / 100);
+		param.hot_rect.left *= (image.cols / 100);
+		param.hot_rect.right = (image.cols / 100);
+
 		int subwin_count;
 		int num = detect(image, MAX_DETECTION, rects, subwin_count);
 
@@ -144,8 +149,9 @@ int Detector::detect(const Mat &image, int max_num, CB_RectT *pt_rects, int &sub
 	int image_w = image.cols;
 	int image_h = image.rows;
 
+	int feature_types = ((HaarParamT *)ptr_model->p_ft_param)->feature_types;
 	IntegralImage intg;
-	intg.init(image_w, image_h, pt_model->feature_type);
+	intg.init(image_w, image_h, feature_types);
 	intg.compute(image.data);
 
 	int num = detect(intg, max_num, pt_rects, subwin_count);
@@ -158,11 +164,12 @@ int Detector::detect(IntegralImage &intg, int max_num, CB_RectT *pt_rects, int &
 	int image_w = intg.width;
 	int image_h = intg.height;
 
+	CB_PointT tpl_size = ptr_model->p_ft_param->getTemplateSize();
+	
 	SubwinInfoT subwin;
 	subwin.image_size.x = image_w;
 	subwin.image_size.y = image_h;
-	subwin.win_size.x = pt_model->template_w;
-	subwin.win_size.y = pt_model->template_h;
+	subwin.win_size = tpl_size;
 
 	double cur_scan_scale = 1.0;
 
@@ -173,8 +180,8 @@ int Detector::detect(IntegralImage &intg, int max_num, CB_RectT *pt_rects, int &
 		if (subwin.win_size.x < param.min_win_w || subwin.win_size.x > param.max_win_w)
 		{
 			cur_scan_scale *= param.scan_scale_step;
-			subwin.win_size.x = pt_model->template_w * cur_scan_scale;
-			subwin.win_size.y = pt_model->template_h * cur_scan_scale;
+			subwin.win_size.x = tpl_size.x * cur_scan_scale;
+			subwin.win_size.y = tpl_size.y * cur_scan_scale;
 			continue;
 		}
 		subwin.win_pos.y = param.hot_rect.top;
@@ -208,8 +215,8 @@ int Detector::detect(IntegralImage &intg, int max_num, CB_RectT *pt_rects, int &
 			subwin.win_pos.y += param.scan_shift_step * cur_scan_scale;
 		}
 		cur_scan_scale *= param.scan_scale_step;
-		subwin.win_size.x = pt_model->template_w * cur_scan_scale;
-		subwin.win_size.y = pt_model->template_h * cur_scan_scale;
+		subwin.win_size.x = tpl_size.x * cur_scan_scale;
+		subwin.win_size.y = tpl_size.y * cur_scan_scale;
 	}
 	printf("%d\n", detection_count);
 	return detection_count;
@@ -242,17 +249,17 @@ int Detector::test(IntegralImage &intg, SubwinInfoT &subwin)
 
 	double value = 0;
 	int stage_count = 0;
-	for (int i=0; i<pt_model->weak_learner_num; i++)
+	for (int i=0; i<ptr_model->weak_learner_num; i++)
 	{
-		double temp = pt_model->pt_weak_learners[i].test(intg, subwin);
+		double temp = ptr_model->p_weak_learners[i].test(intg, subwin);
 		value += temp;
 
-		if (i != pt_model->stage_idx[stage_count])
+		if (i != ptr_model->stage_idx[stage_count])
 		{
 			continue;
 		}
 
-		if (value < pt_model->stage_thd[stage_count])
+		if (value < ptr_model->stage_thd[stage_count])
 		{
 			return 0;		
 		}

@@ -1,6 +1,7 @@
 #pragma once
-#include "TrainParams.h"
+#include "Utils.h"
 #include "IntegralImage.h"
+#include "Feature.h"
 
 const int HFT_STEP1 = 100;
 
@@ -36,15 +37,29 @@ typedef enum {
 	HFT_SQ_L_ABBA = HFT_L_ABBA + HFT_STEP1,
 	HFT_SQ_R_ABBA = HFT_R_ABBA + HFT_STEP1,
 	HFT_SQ_A_B = HFT_A_B + HFT_STEP1
-} FeatureTypeT;
+}FeatureTypeT;
+
+
+struct HaarParamT : FeatureParamT
+{
+	int is_abs;
+	int feature_types;
+	CB_PointT tpl_size;
+
+	~HaarParamT();
+	virtual int saveToModel(FILE *fp);
+	virtual int loadFromModel(FILE *fp);
+	virtual int loadFromConfig(FILE *fp);
+	virtual CB_PointT getTemplateSize();
+	virtual int getFeatureTypes();
+};
 
 
 typedef struct
 {
 	CB_PointT tpl_size;
-
-	FeatureTypeT type;
 	int abs;
+	int type;
 	CB_PointT pos1;
 	CB_PointT pos2;
 	CB_PointT size;
@@ -58,23 +73,24 @@ typedef struct
 }HaarFeatureInfoT;
 
 
-typedef struct
+struct HaarFeatureValueT : FeatureValueT
 {
 	float value;
-	int index;
-}HaarFeatureValueT;
+};
 
-class HaarFeature
+
+class HaarFeature : public Feature
 {
 public:
 	HaarFeature(void);
 	~HaarFeature(void);
 
-	int loadFromFile(const FILE *fp, int template_w, int template_h);
+	int loadFromFile(const FILE *fp, const FeatureParamT &init_param);
 	int saveToFile(FILE *fp);
-	float computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin) const;
+	int computeFeatureValue(const IntegralImage &intg, const SubwinInfoT &subwin, FeatureValueT &value) const;
 	int computeFeatureIndex(const IntegralImage &intg, const SubwinInfoT &subwin) const;
-	int computeFeatureIndex(double feature_value) const;
+	int computeFeatureIndex(FeatureValueT &feature_value) const;
+	int getBinnum(){return info.bin_num;};
 
 public:
 	static int slantToRect(const CB_SlantT &slant, CB_RectangleT &rect, const CB_PointT &image_size);

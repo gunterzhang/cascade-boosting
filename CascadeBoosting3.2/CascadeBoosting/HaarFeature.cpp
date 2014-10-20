@@ -2,6 +2,81 @@
 #include "HaarFeature.h"
 
 
+HaarParamT::~HaarParamT()
+{
+}
+
+int HaarParamT::saveToModel(FILE *fp)
+{
+	fprintf(fp, "%d %d\n", tpl_size.x, tpl_size.y);
+	fprintf(fp, "%d\n", feature_types);
+
+	return 1;
+}
+
+
+int HaarParamT::loadFromModel(FILE *fp)
+{
+	fscanf(fp, "%d %d\n", &tpl_size.x, &tpl_size.y);
+	fscanf(fp, "%d\n", &feature_types);
+
+	return 1;
+}
+
+
+int HaarParamT::loadFromConfig(FILE *fp)
+{
+	char tmp_str[1000];
+
+	fscanf(fp, "%s", tmp_str);
+	fscanf(fp, "%d", &bin_num);
+	printf("HaarBinNum:      %d\n", bin_num);
+
+	fscanf(fp, "%s", tmp_str);
+	fscanf(fp, "%d", &tpl_size.x);
+	printf("TemplateWidth:   %d\n", tpl_size.x);
+
+	fscanf(fp, "%s", tmp_str);
+	fscanf(fp, "%d", &tpl_size.y);
+	printf("TemplateHeight:  %d\n", tpl_size.y);
+
+	fscanf(fp, "%s", tmp_str);
+	fscanf(fp, "%d", &feature_types);
+	printf("FeatureType:     %d\n", feature_types);
+
+	fscanf(fp, "%s", tmp_str);
+	fscanf(fp, "%d", &is_abs);
+	printf("FeatureAbs:      %d\n", is_abs);
+
+	fscanf(fp, "%s", tmp_str);
+	fscanf(fp, "%d\n", &is_candid);
+	printf("IsCandid:        %d\n", is_candid);
+
+	fscanf(fp, "%s", tmp_str);
+	fscanf(fp, "%s\n", tmp_str);
+	candid_path = tmp_str;\
+	if (is_candid > 0)
+	{
+		printf("CandidPath:      %s\n", candid_path.c_str());
+	}
+
+	return 1;
+}
+
+
+CB_PointT HaarParamT::getTemplateSize()
+{
+	return this->tpl_size;
+}
+
+
+int HaarParamT::getFeatureTypes()
+{
+	return feature_types;
+}
+
+
+
 HaarFeature::HaarFeature(void)
 {
 }
@@ -12,23 +87,20 @@ HaarFeature::~HaarFeature(void)
 }
 
 
-int HaarFeature::loadFromFile(const FILE *fp, int template_w, int template_h)
+int HaarFeature::loadFromFile(const FILE *fp, const FeatureParamT &param)
 {
-	info.tpl_size.x = template_w;
-	info.tpl_size.y = template_h;
+	const HaarParamT &init_param = (const HaarParamT &)param;
 
-	fscanf((FILE *)fp, "%d %d %d %d %d %d %d %d %lf ",
+	info.tpl_size = init_param.tpl_size;
+	info.bin_num = init_param.bin_num;
+	char line[1000];
+	fgets(line, sizeof(line), (FILE *)fp);
+	sscanf(line, "%d %d %d %d %d %d %d %d %lf ",
 			&info.type, &info.abs,
 		    &info.pos1.x, &info.pos1.y,
 		    &info.pos2.x, &info.pos2.y,	
 			&info.size.x, &info.size.y, 
 			&info.inv_area);
-
-	fscanf((FILE*)fp, "%d %lf %lf %lf ", 
-		   &info.bin_num, &info.bin_min, &info.bin_max, &info.bin_width);
-
-	info.inv_bin_width = 1.0 / info.bin_width;
-
 	return 1;
 }
 
@@ -38,17 +110,17 @@ int HaarFeature::saveToFile(FILE *fp)
 	fprintf(fp, "%d %d %d %d %d %d %d %d %lf ",
 			info.type, info.abs,
 		    info.pos1.x, info.pos1.y,
-		    info.pos2.x, info.pos2.y,	
-			info.size.x, info.size.y, 
+		    info.pos2.x, info.pos2.y,
+			info.size.x, info.size.y,
 			info.inv_area);
 
-	fprintf(fp, "%d %lf %lf %lf ", info.bin_num, info.bin_min, info.bin_max, info.bin_width);
+	fprintf(fp, "%d %lf %lf %lf\n", info.bin_num, info.bin_min, info.bin_max, info.bin_width);
 
 	return 1;
 }
 
 
-float HaarFeature::computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin) const
+int HaarFeature::computeFeatureValue(const IntegralImage &intg, const SubwinInfoT &subwin, FeatureValueT &value) const
 {
 	int cur_scan_pos_x = subwin.win_pos.x;
 	int cur_scan_pos_y = subwin.win_pos.y;
@@ -543,30 +615,38 @@ float HaarFeature::computeFeature(const IntegralImage &intg, const SubwinInfoT &
 	{
 		result = fabs(result);
 	}
-	return result;
+
+	HaarFeatureValueT &feature_value = (HaarFeatureValueT &)value;
+	feature_value.value = result;
+	return 1;
 }
 
 
 int HaarFeature::computeFeatureIndex(const IntegralImage &intg, const SubwinInfoT &subwin) const
 {
-	double feature_value = computeFeature(intg, subwin);
-
-	int bin_index = computeFeatureIndex(feature_value);
-	return bin_index;
+	HaarFeatureValueT haar_feature_value;
+	computeFeatureValue(intg, subwin, haar_feature_value);
+	int index = computeFeatureIndex(haar_feature_value);
+	return index;
 }
 
 
-int HaarFeature::computeFeatureIndex(double feature_value) const
+int HaarFeature::computeFeatureIndex(FeatureValueT &src_feature_value) const
 {
+	HaarFeatureValueT &haar_feature_value = (HaarFeatureValueT &)src_feature_value;
+	double value = haar_feature_value.value;
+
 	int bin_index;
-	if (feature_value < info.bin_min)
+	if (value < info.bin_min)
 		bin_index = 0;
-	else if (feature_value > info.bin_max)
+	else if (value > info.bin_max)
 		bin_index = info.bin_num - 1;
 	else 
-		bin_index = (feature_value - info.bin_min) * info.inv_bin_width + 1;
+		bin_index = (value - info.bin_min) * info.inv_bin_width + 1;
+
 	return bin_index;
 }
+
 
 int HaarFeature::slantToRect(const CB_SlantT &slant, CB_RectangleT &rect, const CB_PointT &image_size)
 {

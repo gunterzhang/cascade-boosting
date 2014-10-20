@@ -1,0 +1,7 @@
+HaarBinNum:      50
+TemplateWidth:   48
+TemplateHeight:  48
+FeatureType:     1
+FeatureAbs:      1
+IsFromCandid:    1
+CandidPath:      E:\ChainBoosting_Train\01-Train\CascadeBoosting3.6\x64\Debug\config\haar.candid

@@ -13,7 +13,7 @@ ObjMerger::~ObjMerger(void)
 }
 
 
-void ObjMerger::clearUp()
+void ObjMerger::cleanUp()
 {
 	if (rect_groups != NULL)
 	{
@@ -25,7 +25,7 @@ void ObjMerger::clearUp()
 
 int ObjMerger::init(const MergerParamT &param)
 {
-	clearUp();
+	cleanUp();
 	this->param = param;
 
 	rect_groups = new RectGroupT[MAX_RECT_NUM];

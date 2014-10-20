@@ -1,5 +1,6 @@
 #pragma once
 #include "HaarFeature.h"
+#include "FeatureHub.h"
 
 const int HAAR_SHIFT_STEP_X = 2;
 const int HAAR_SHIFT_STEP_Y = 2;
@@ -10,44 +11,40 @@ const int FEATURE_MARGIN = 1;
 const double INV_AREA_R = 500.0;
 const int MAX_FEATURE_TYPE_NUM = 200;
 
-class HaarFeatureHub
+
+class HaarFeatureHub : public FeatureHub
 {
 public:
 	HaarFeatureHub(void);
 	~HaarFeatureHub(void);
 
-	int init(int w, int h, int type, int is_abs);
+	int init(const FeatureParamT &param);
 	int getFeatureNum();
-	const HaarFeatureValueT *extractAllFeatures(FILE *fp);
-	int train(int pos_num, HaarFeatureValueT *pt_pos_haar_values,
-		      int neg_num, HaarFeatureValueT *pt_neg_haar_values,
-			  int bin_num);
-	int extractFeatures(int sample_num, const string &data_path, HaarFeatureValueT *pt_features);
+	FeatureValueT *createTrainingMemory(int num);
+	int releaseTrainingMemory(FeatureValueT* &pt_featureValue);
+
+	int getPosFeatureIdx(int sampleIdx, int featureIdx);
+	int getNegFeatureIdx(int sampleIdx, int featureIdx);
+
+	virtual Feature *getFeature(int idx);
 
 private:
-	void clearUp();
+	void cleanUp();
+	int initFromFile();
+	int trainFeatures(int pos_num, FeatureValueT *pt_pos_haar_values,
+		              int neg_num, FeatureValueT *pt_neg_haar_values);
+	int extractFeatures(int sample_num, const string &data_path, FeatureValueT *pt_features);
+	int getAllFeatureInfos(int is_extract_feature = 0);
 	float extractFeature(const HaarFeature &haar);
-	int getAllFeatureInfos(int is_extract_feature = 0, FILE *fp = NULL);
-	int extractOneTypeFeatures(int is_extract_feature, HaarFeature &haar);
-	int extractOneTypeFeatures45(int is_extract_feature, HaarFeature &haar);
-	int extractOneTypeFeaturesAB(int is_extract_feature, HaarFeature &haar);
+	int extractAllFeatures(FILE *fp, HaarFeatureValueT *pt_features);
+	int extractOneTypeFeatures(int is_extract_feature, HaarFeatureInfoT &info);
+	int extractOneTypeFeatures45(int is_extract_feature, HaarFeatureInfoT &info);
+	int extractOneTypeFeaturesAB(int is_extract_feature, HaarFeatureInfoT &info);
 
 public:	
-	HaarFeature *pt_haars;
-
-private:
+	HaarFeature *p_haars;
 	IntegralImage intg;
-
-	HaarFeatureValueT *pt_features;
-
-	int template_w;
-	int template_h;
-
-	int feature_types;
-	int feature_abs;
-
-	int feature_count;
-	int feature_num;
+	HaarParamT haar_param;
 
 	CB_PointT feature_sizes[MAX_FEATURE_TYPE_NUM];
 	int feature_inv_ratio[MAX_FEATURE_TYPE_NUM];

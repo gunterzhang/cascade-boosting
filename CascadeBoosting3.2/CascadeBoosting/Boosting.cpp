@@ -10,36 +10,24 @@ Boosting::Boosting(void)
 	max_pos_sample_num = 0;
 	max_neg_sample_num = 0;
 
-	positive_features = NULL;
-	negative_features = NULL;
-
 	positive_weights = NULL;
 	negative_weights = NULL;
 
 	positive_scores = NULL;
 	negative_scores = NULL;
+
+	p_ft_hub = NULL;
 }
 
 
 Boosting::~Boosting(void)
 {
-	clearUp();
+	cleanUp();
 }
 
 
-int Boosting::clearUp()
+int Boosting::cleanUp()
 {
-	if (positive_features != NULL)
-	{
-		delete []positive_features;
-		positive_features = NULL;
-	}
-	if (negative_features = NULL)
-	{
-		delete []negative_features;
-		negative_features = NULL;
-	}
-
 	if (positive_weights != NULL)
 	{
 		delete []positive_weights;
@@ -61,29 +49,44 @@ int Boosting::clearUp()
 		delete []negative_scores;
 		negative_scores = NULL;
 	}
-
+	if (p_ft_hub != NULL)
+	{
+		delete p_ft_hub;
+		p_ft_hub = NULL;
+	}
 	return 1;
 }
 
 
-int Boosting::init(const TrainParamsT &params)
+int Boosting::init(TrainParamsT &params)
 {
-	clearUp();
+	cleanUp();
 	
-	this->pt_params = (TrainParamsT *)&params;
+	ptr_params = (TrainParamsT *)&params;
+	if (params.feature_type == FeatureTypeE::FERN)
+		p_ft_hub = new FernFeatureHub;
+	else if (params.feature_type == FeatureTypeE::HAAR)
+		p_ft_hub = new HaarFeatureHub;
+	else 
+		return 0;
 
-	haar_hub.init(params.template_w, params.template_h, params.feature_type, params.feature_abs);
-	total_feature_num = haar_hub.getFeatureNum();
+	int rst = p_ft_hub->init(*(params.ptr_ft_param));
+	if (rst <= 0)
+	{
+		return 0;
+	}
 
-	FILE *fp = fopen(pt_params->train_log_path.c_str(), "at");
-	fprintf(fp, "feature num:%d\n", total_feature_num);
+	feature_num = p_ft_hub->getFeatureNum();
+
+	FILE *fp = fopen(ptr_params->train_log_path.c_str(), "at");
+	fprintf(fp, "feature num:%d\n", feature_num);
 	fclose(fp);
 
 	max_pos_sample_num = params.positive_num;
 	max_neg_sample_num = max(params.min_negative_num, params.positive_num) + params.max_neg_per_image * 2;
 
-	positive_features = new HaarFeatureValueT[max_pos_sample_num * total_feature_num];
-	negative_features = new HaarFeatureValueT[max_neg_sample_num * total_feature_num];
+	p_ft_hub->initTrainingMem(max_pos_sample_num, max_neg_sample_num);
+
 	positive_weights = new double[max_pos_sample_num];
 	negative_weights = new double[max_neg_sample_num];
 	positive_scores = new double[max_pos_sample_num];
@@ -113,16 +116,11 @@ int Boosting::initWeights()
 
 int Boosting::prepareNewStage(PatternModel &model)
 {
-	positive_num = pt_params->positive_num;
-	negative_num = pt_params->negative_num;
+	positive_num = ptr_params->positive_num;
+	negative_num = ptr_params->negative_num;
 
 	printf("------------Extracting Haar Features...------------\n");
-	haar_hub.extractFeatures(positive_num, pt_params->positive_data_path, positive_features);
-	haar_hub.extractFeatures(negative_num, pt_params->negative_data_path, negative_features);
-
-	haar_hub.train(positive_num, positive_features,
-		           negative_num, negative_features,
-				   pt_params->bin_num);
+	p_ft_hub->train(positive_num, ptr_params->positive_data_path, negative_num, ptr_params->negative_data_path);
 
 	reweight(model);
 
@@ -132,7 +130,7 @@ int Boosting::prepareNewStage(PatternModel &model)
 
 int Boosting::trainWeakLearner(PatternModel &model)
 {
-	WeakLearner &weak_learner = model.pt_weak_learners[model.weak_learner_num];
+	WeakLearner &weak_learner = model.p_weak_learners[model.weak_learner_num];
 	learnOneWeakLearner(weak_learner);
 
 	double thd = getStrongLearnerThd(model); 
@@ -150,30 +148,32 @@ int Boosting::learnOneWeakLearner(WeakLearner &weak_learner)
 	double min_BHC = 99999.0;
 	int best_feature_idx;
 
-	for (int i=0; i<total_feature_num; i++)
+	int bin_num = ptr_params->ptr_ft_param->bin_num;
+
+	for (int i=0; i<feature_num; i++)
 	{
 		if (isFeatureLearned(i) == 1)
 		{
 			continue;
 		}
-		memset(positive_hist, 0, pt_params->bin_num * sizeof(positive_hist[0]));
-		memset(negative_hist, 0, pt_params->bin_num * sizeof(negative_hist[0]));
+		memset(positive_hist, 0, bin_num * sizeof(positive_hist[0]));
+		memset(negative_hist, 0, bin_num * sizeof(negative_hist[0]));
 
 		for (int j=0; j<positive_num; j++)
 		{
 			int idx = i * positive_num + j;
-			int bin_idx = positive_features[idx].index;
+			int bin_idx = p_ft_hub->getPosFeatureIdx(j, i);
 			positive_hist[bin_idx] += positive_weights[j];
 		}
 		for (int j=0; j<negative_num; j++)
 		{
 			int idx = i * negative_num + j;
-			int bin_idx = negative_features[idx].index;
+			int bin_idx = p_ft_hub->getNegFeatureIdx(j, i);
 			negative_hist[bin_idx] += negative_weights[j];
 		}
 
 		double BHC = 0;
-		for (int j=0; j<pt_params->bin_num; j++)
+		for (int j=0; j<bin_num; j++)
 		{
 			BHC += sqrt(positive_hist[j] * negative_hist[j]);
 		}
@@ -185,25 +185,25 @@ int Boosting::learnOneWeakLearner(WeakLearner &weak_learner)
 		}
 	}
 
-	weak_learner.haar = haar_hub.pt_haars[best_feature_idx];
+	weak_learner.init(p_ft_hub->getFeature(best_feature_idx));
 
-	memset(positive_hist, 0, pt_params->bin_num * sizeof(positive_hist[0]));
-	memset(negative_hist, 0, pt_params->bin_num * sizeof(negative_hist[0]));
+	memset(positive_hist, 0, bin_num * sizeof(positive_hist[0]));
+	memset(negative_hist, 0, bin_num * sizeof(negative_hist[0]));
 
 	for (int i=0; i<positive_num; i++)
 	{
 		int idx = best_feature_idx * positive_num + i;
-		int binIndex = positive_features[idx].index;
+		int binIndex = p_ft_hub->getPosFeatureIdx(i, best_feature_idx);
 		positive_hist[binIndex] += positive_weights[i];
 	}
 	for (int i=0; i<negative_num; i++)
 	{
 		int idx = best_feature_idx * negative_num + i;
-		int binIndex = negative_features[idx].index;
+		int binIndex = p_ft_hub->getNegFeatureIdx(i, best_feature_idx); 
 		negative_hist[binIndex] += negative_weights[i]; 
 	}
 
-	for (int i=0; i<pt_params->bin_num; i++)
+	for (int i=0; i<bin_num; i++)
 	{
 		double part1 = (positive_hist[i] + 0.0001);
 		double part2 = (negative_hist[i] + 0.0001);
@@ -236,7 +236,7 @@ int Boosting::updateWeights(const WeakLearner &weak_learner, int iteration_idx)
 	for (int i=0; i<positive_num; i++)
 	{
 		int idx = feature_idx * positive_num + i;
-		int bin_idx = positive_features[idx].index;
+		int bin_idx = p_ft_hub->getPosFeatureIdx(i, feature_idx);
 		double value = weak_learner.output[bin_idx];
 		positive_weights[i] *= exp(-value);
 		weight_sum += positive_weights[i];
@@ -245,7 +245,7 @@ int Boosting::updateWeights(const WeakLearner &weak_learner, int iteration_idx)
 	for (int i=0; i<negative_num; i++)
 	{
 		int idx = feature_idx * negative_num + i;
-		int bin_idx = negative_features[idx].index;
+		int bin_idx = p_ft_hub->getNegFeatureIdx(i, feature_idx);
 		double value = weak_learner.output[bin_idx];
 		negative_weights[i] *= exp(value);
 		weight_sum += negative_weights[i];
@@ -263,10 +263,8 @@ double Boosting::getStrongLearnerThd(const PatternModel &model)
 		for (int j=0; j<=iteration; j++)
 		{
 			int feature_idx = learned_feature_idx[j];
-			int idx = feature_idx * positive_num + i;
-			int binIndex = positive_features[idx].index;
-
-			double score = model.pt_weak_learners[j].output[binIndex];
+			int binIndex = p_ft_hub->getPosFeatureIdx(i, feature_idx);
+			double score = model.p_weak_learners[j].output[binIndex];
 			positive_scores[i] += score;
 		}
 	}
@@ -278,14 +276,13 @@ double Boosting::getStrongLearnerThd(const PatternModel &model)
 		for (int j=0; j<=iteration; j++)
 		{
 			int feature_idx = learned_feature_idx[j];
-			int idx = feature_idx * negative_num + i;
-			int binIndex = negative_features[idx].index;
+			int binIndex = p_ft_hub->getNegFeatureIdx(i, feature_idx);
 
-			double score = model.pt_weak_learners[j].output[binIndex];
+			double score = model.p_weak_learners[j].output[binIndex];
 			negative_scores[i] += score;
 		}
 	}
-	double thd = adjustThreshold(pt_params->detection_rates[0], pt_params->false_alarms[0]);
+	double thd = adjustThreshold(ptr_params->detection_rates[0], ptr_params->false_alarms[0]);
 	printf("Detection Rate:%lf;    False alarm Rate:%lf\n", detection_rate, false_alarm);
 	return thd;
 }
@@ -408,9 +405,9 @@ void Boosting::filterTrainingSamples(const PatternModel &model)
 int Boosting::filterPositiveSamples(const PatternModel &model)
 {
 	string temp_file_path;
-	temp_file_path = pt_params->work_dir + "temp.intg";
+	temp_file_path = ptr_params->work_dir + "temp.intg";
 
-	FILE *fp = fopen(pt_params->positive_data_path.c_str(), "rb");
+	FILE *fp = fopen(ptr_params->positive_data_path.c_str(), "rb");
 
 	IntegralImage intg;
 	int count = 0;
@@ -423,11 +420,11 @@ int Boosting::filterPositiveSamples(const PatternModel &model)
 			count++;
 		}
 	}
-	pt_params->positive_num = count;
+	ptr_params->positive_num = count;
 	fclose(fp);
 
-	remove(pt_params->positive_data_path.c_str());
-	rename(temp_file_path.c_str(), pt_params->positive_data_path.c_str());
+	remove(ptr_params->positive_data_path.c_str());
+	rename(temp_file_path.c_str(), ptr_params->positive_data_path.c_str());
 
 	return 1;
 }
@@ -436,9 +433,9 @@ int Boosting::filterPositiveSamples(const PatternModel &model)
 int Boosting::filterNegativeSamples(const PatternModel &model)
 {
 	string temp_file_path;
-	temp_file_path = pt_params->work_dir + "temp.intg";
+	temp_file_path = ptr_params->work_dir + "temp.intg";
 
-	FILE *fp = fopen(pt_params->negative_data_path.c_str(), "rb");
+	FILE *fp = fopen(ptr_params->negative_data_path.c_str(), "rb");
 
 	IntegralImage intg;
 	int count = 0;
@@ -451,11 +448,11 @@ int Boosting::filterNegativeSamples(const PatternModel &model)
 			count++;
 		}
 	}
-	pt_params->negative_num = count;
+	ptr_params->negative_num = count;
 	fclose(fp);
 
-	remove(pt_params->negative_data_path.c_str());
-	rename(temp_file_path.c_str(), pt_params->negative_data_path.c_str());
+	remove(ptr_params->negative_data_path.c_str());
+	rename(temp_file_path.c_str(), ptr_params->negative_data_path.c_str());
 	
 	return 1;
 }
@@ -465,39 +462,9 @@ int Boosting::reweight(PatternModel &model)
 {
 	initWeights();
 
-	if (iteration == 0)
-	{
-		return 1;
-	}
-
 	for (int i=0; i<model.weak_learner_num; i++)
 	{
-		updateWeights(model.pt_weak_learners[i], i);
+		updateWeights(model.p_weak_learners[i], i);
 	}
 	return 1;
-}
-
-
-int Boosting::getSampleNum(const string &path)
-{
-	FILE *fp = fopen(path.c_str(), "rb");
-	if (fp == NULL)
-	{
-		return 0;
-	}
-	
-	int count = 0;
-	IntegralImage intg;
-
-	while (true)
-	{
-		if (intg.load(fp) == 0)
-		{
-			break;
-		}
-		count++;
-	}
-
-	fclose(fp);
-	return count;
 }

@@ -7,31 +7,39 @@
 #include "PositiveExtractor.h"
 #include "PatternModel.h"
 
+
 class Cascade
 {
 public:
 	Cascade(void);
 	~Cascade(void);
 
-	int work(TrainParamsT &params);
+	int work(TrainParamsT *ptr_params);
 
 private:
-	int init();
 	int train();
 	int test();
 
-	int loadConfig();
-	int initModel();
+	int trainInit();
+	int cleanUp();
+
+	int initWorkDir();
+	int parseSearchParams(char *tmp_str, FILE *fp);
+	int loadConfig(int is_train);
+	int loadFeatureConfig();
+
 	int extractPositiveSamples();
 	int extractNegativeSamples();
+
 	int isStageLearned();
 	int updateStageModel();
 
 private:
-	TrainParamsT *pt_params;
+	TrainParamsT *ptr_train_params;
+	FeatureParamT *p_ft_params;
+
 	Boosting boosting;
 	PatternModel model;
 	NegativeExtractor neg_extractor;
 	PositiveExtractor pos_extractor;
 };
-

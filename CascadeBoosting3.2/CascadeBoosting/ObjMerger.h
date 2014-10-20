@@ -1,5 +1,5 @@
 #pragma once
-#include "TrainParams.h"
+#include "Utils.h"
 
 const int MAX_RECT_NUM = 500;
 
@@ -43,7 +43,7 @@ public:
 	int merge(int num, CB_RectT *pt_rects);
 
 private:
-	void clearUp();
+	void cleanUp();
 	int min(int a, int b);
 	int max(int a, int b);
 	int computeOverlap(CB_RectT &rect1, CB_RectT &rect2, OverlapT &overlap);

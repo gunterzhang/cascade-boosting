@@ -1,5 +1,5 @@
 #pragma once
-#include "TrainParams.h"
+#include "Utils.h"
 
 class IntegralImage
 {
@@ -26,7 +26,7 @@ public:
 	int computeSubwinMeanVar(SubwinInfoT &subwin);
 
 private:
-	void clearUp();
+	void cleanUp();
 	inline double getValue_0(const CB_PointT &pos) const;
 	inline double getValue_45(const CB_PointT &pos) const;
 	inline double getSqureValue_0(const CB_PointT &pos) const;

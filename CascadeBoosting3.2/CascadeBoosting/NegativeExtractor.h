@@ -1,8 +1,6 @@
 #pragma once
 #include "TrainParams.h"
 #include "IntegralImage.h"
-#include "WeakLearner.h"
-#include "Boosting.h"
 #include "Detector.h"
 
 using namespace cv;
@@ -14,7 +12,8 @@ public:
 	~NegativeExtractor(void);
 
 	int init(TrainParamsT &param);
-	int extractSamples(int num,  const PatternModel *model);
+	int extractSamples(int num, const PatternModel *model);
+	int getSampleNum(const string &path);
 
 private:
 	int detectImage(const Mat &image);
@@ -24,7 +23,7 @@ private:
 	void saveTrainingData(const Mat &image, CvRect rect);
 
 private:
-	TrainParamsT *pt_params;
+	TrainParamsT *ptr_params;
 	IntegralImage sample_intg;
 	Detector detector;
 

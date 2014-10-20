@@ -19,11 +19,11 @@ IntegralImage::IntegralImage(void)
 
 IntegralImage::~IntegralImage(void)
 {
-	clearUp();
+	cleanUp();
 }
 
 
-void IntegralImage::clearUp()
+void IntegralImage::cleanUp()
 {
 	if (s != NULL)
 	{
@@ -76,7 +76,7 @@ void IntegralImage::clearUp()
 
 int IntegralImage::init(int w, int h, int type)
 {
-	clearUp();
+	cleanUp();
 	width = w;
 	height = h;
 	this->type = type;

@@ -57,9 +57,6 @@
     <ClInclude Include="ObjMerger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FernsFeature.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HaarFeatureHub.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -67,6 +64,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FernFeatureHub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FeatureHub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Feature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FernFeature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,9 +116,6 @@
     <ClCompile Include="ObjMerger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FernsFeature.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HaarFeatureHub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -117,6 +123,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FernFeatureHub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FeatureHub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Feature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FernFeature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

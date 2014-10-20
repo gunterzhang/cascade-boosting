@@ -16,9 +16,11 @@ NegativeExtractor::~NegativeExtractor(void)
 
 int NegativeExtractor::init(TrainParamsT &params)
 {
-	pt_params = &params;
+	ptr_params = &params;
 
-	scan_shift_step = params.template_w * 2;
+	CB_PointT tpl_size = params.ptr_ft_param->getTemplateSize();
+
+	scan_shift_step = tpl_size.x * 2;
 	scan_scale_step = 3.0;
 	total_negative_count = 0;
 
@@ -48,8 +50,9 @@ int NegativeExtractor::init(TrainParamsT &params)
 	{
 		char tmp_char[MAX_PATH_LEN];
 		int rst = fscanf(fp, "%s\n", tmp_char);
-		image_file_names[pool_image_num] = tmp_char;
 		if (rst <= 0) break;
+
+		image_file_names[pool_image_num] = tmp_char;
 		pool_image_num++;
 	}
 	fclose(fp);
@@ -70,7 +73,7 @@ int NegativeExtractor::extractSamples(int needed_num, const PatternModel *model)
 
 	while (needed_num > 0)
 	{
-		string image_path = pt_params->negative_pool_dir + image_file_names[pool_image_idx];
+		string image_path = ptr_params->negative_pool_dir + image_file_names[pool_image_idx];
 		string label_path = image_path;
 		string::size_type pos = label_path.find(".jpg");
 		string str = ".jpg";
@@ -126,7 +129,7 @@ int NegativeExtractor::extractSamples(int needed_num, const PatternModel *model)
 
 	printf("false alarm = %1.10lf\n", (double)detect_count / total_count);
 
-	FILE *fp = fopen(pt_params->train_log_path.c_str(), "at");
+	FILE *fp = fopen(ptr_params->train_log_path.c_str(), "at");
 	fprintf(fp, " false alarm:%d-%d = %1.10lf\n", detect_count, total_count, (double)detect_count / total_count);
 	fclose(fp);
 
@@ -141,25 +144,25 @@ int NegativeExtractor::detectImage(const Mat &image)
 	param.resize_h = 0;
 	param.scan_scale_step = scan_scale_step;
 	param.scan_shift_step = scan_shift_step;
-	param.hot_rect.left = pt_params->neg_start_x_r * image.cols;
-	param.hot_rect.right = pt_params->neg_end_x_r * image.cols;
-	param.hot_rect.top = pt_params->neg_start_y_r * image.rows;
-	param.hot_rect.bottom = pt_params->neg_end_y_r * image.rows;
+	param.hot_rect.left = ptr_params->neg_start_x_r * image.cols;
+	param.hot_rect.right = ptr_params->neg_end_x_r * image.cols;
+	param.hot_rect.top = ptr_params->neg_start_y_r * image.rows;
+	param.hot_rect.bottom = ptr_params->neg_end_y_r * image.rows;
 
-	if (pt_params->is_size_ratio_on > 0 && pt_params->is_size_len_on == 0)
+	if (ptr_params->is_size_ratio_on > 0 && ptr_params->is_size_len_on == 0)
 	{
-		param.min_win_w = image.cols * pt_params->neg_min_w_r;
-		param.max_win_w = image.cols * pt_params->neg_max_w_r;
+		param.min_win_w = image.cols * ptr_params->neg_min_w_r;
+		param.max_win_w = image.cols * ptr_params->neg_max_w_r;
 	}
-	else if (pt_params->is_size_len_on > 0 && pt_params->is_size_ratio_on == 0)
+	else if (ptr_params->is_size_len_on > 0 && ptr_params->is_size_ratio_on == 0)
 	{
-		param.min_win_w = pt_params->neg_min_w;
-		param.max_win_w = pt_params->neg_max_w;
+		param.min_win_w = ptr_params->neg_min_w;
+		param.max_win_w = ptr_params->neg_max_w;
 	}
-	else if (pt_params->is_size_len_on > 0 && pt_params->is_size_ratio_on > 0)
+	else if (ptr_params->is_size_len_on > 0 && ptr_params->is_size_ratio_on > 0)
 	{
-		param.min_win_w = max((int)(image.cols * pt_params->neg_min_w_r), pt_params->neg_min_w);
-		param.max_win_w = min((int)(image.cols * pt_params->neg_max_w_r), pt_params->neg_max_w);
+		param.min_win_w = max((int)(image.cols * ptr_params->neg_min_w_r), ptr_params->neg_min_w);
+		param.max_win_w = min((int)(image.cols * ptr_params->neg_max_w_r), ptr_params->neg_max_w);
 	}
 
 	detector.setScanParams(&param);
@@ -187,7 +190,7 @@ int NegativeExtractor::detectImage(const Mat &image)
 		}
 		false_alarm_count++;
 
-		if (count >= pt_params->max_neg_per_image) 
+		if (count >= ptr_params->max_neg_per_image) 
 		{
 			continue;
 		}
@@ -204,7 +207,7 @@ int NegativeExtractor::detectImage(const Mat &image)
 		image(rect).copyTo(sub_image);
 
 		char file_name[200];
-		sprintf(file_name, "%s%08d_%s.jpg", pt_params->extracted_negative_dir.c_str(), total_negative_count, cur_neg_name.c_str());
+		sprintf(file_name, "%s%08d_%s.jpg", ptr_params->extracted_negative_dir.c_str(), total_negative_count, cur_neg_name.c_str());
 		imwrite(file_name, sub_image);
 		total_negative_count++;
 		count++;
@@ -332,7 +335,31 @@ void  NegativeExtractor::saveTrainingData(const Mat &image, CvRect rect)
 	Mat sub_image;
 	image(rect).copyTo(sub_image);
 
-	sample_intg.init(sub_image.cols, sub_image.rows, pt_params->feature_type);
+	sample_intg.init(sub_image.cols, sub_image.rows, ptr_params->ptr_ft_param->getFeatureTypes());
 	sample_intg.compute(sub_image.data);
-	sample_intg.save(pt_params->negative_data_path);
+	sample_intg.save(ptr_params->negative_data_path);
+}
+
+
+int NegativeExtractor::getSampleNum(const string &path)
+{
+	FILE *fp = fopen(path.c_str(), "rb");
+	if (fp == NULL)
+	{
+		return 0;
+	}
+	
+	int count = 0;
+
+	while (true)
+	{
+		if (sample_intg.load(fp) == 0)
+		{
+			break;
+		}
+		count++;
+	}
+
+	fclose(fp);
+	return count;
 }

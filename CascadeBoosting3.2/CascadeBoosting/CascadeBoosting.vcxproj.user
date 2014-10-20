@@ -5,11 +5,11 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-train plate2</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-train car</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>car G:\train-vehicle\negatives\ G:\train-vehicle\results\</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-train car  G:\train-vehicle\negatives\ G:\train-vehicle\results\</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
