@@ -4,6 +4,7 @@
 #include "PatternModel.h"
 #include "FernFeatureHub.h"
 
+
 typedef struct
 {
 	int resize_w;

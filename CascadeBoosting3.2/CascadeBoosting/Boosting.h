@@ -5,6 +5,7 @@
 #include "HaarFeatureHub.h"
 #include "PatternModel.h"
 
+
 class Boosting
 {
 public:

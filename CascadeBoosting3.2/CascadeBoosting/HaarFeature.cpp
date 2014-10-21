@@ -121,8 +121,9 @@ int HaarFeature::loadFromFile(FILE *fp, const FeatureParamT &param)
 }
 
 
-int HaarFeature::saveToFile(FILE *fp)
+int HaarFeature::saveToFile(const string &file_path)
 {
+	FILE *fp = fopen(file_path.c_str(), "at");
 	fprintf(fp, "%d %d %d %d %d %d %d %d %lf ",
 			info.type, info.abs,
 		    info.pos1.x, info.pos1.y,
@@ -131,7 +132,7 @@ int HaarFeature::saveToFile(FILE *fp)
 			info.inv_area);
 
 	fprintf(fp, "%d %lf %lf %lf\n", info.bin_num, info.bin_min, info.bin_max, info.bin_width);
-
+	fclose(fp);
 	return 1;
 }
 

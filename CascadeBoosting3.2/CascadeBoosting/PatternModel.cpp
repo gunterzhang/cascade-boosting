@@ -122,10 +122,9 @@ int PatternModel::saveToFile(const string &file_path)
 		fprintf(fp, "%d %lf\n", stage_idx[i], stage_thd[i]);
 	}
 	fclose(fp);
-	
+
 	for (int i=0; i<weak_learner_num; i++)
 	{
-		p_features[i].saveToFile(fp);
 		p_weak_learners[i].saveToFile(file_path);
 	}
 	return 1;

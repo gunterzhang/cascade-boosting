@@ -87,7 +87,7 @@ public:
 
 	int initFromFile(FILE *fp, const FeatureParamT &param);
 	int loadFromFile(FILE *fp, const FeatureParamT &init_param);
-	int saveToFile(FILE *fp);
+	int saveToFile(const string &file_path);
 	int computeFeatureValue(const IntegralImage &intg, const SubwinInfoT &subwin, FeatureValueT &value) const;
 	int computeFeatureIndex(const IntegralImage &intg, const SubwinInfoT &subwin) const;
 	int computeFeatureIndex(FeatureValueT &feature_value) const;

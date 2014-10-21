@@ -21,9 +21,8 @@ int WeakLearner::init(Feature *ptr_feature)
 
 int WeakLearner::saveToFile(const string &file_path)
 {
+	ptr_feature->saveToFile(file_path);
 	FILE *fp = fopen(file_path.c_str(), "at");
-	ptr_feature->saveToFile(fp);
-
 	for (int i=0; i<ptr_feature->getBinnum(); i++)
 	{
 		fprintf(fp, "%lf ", output[i]);
