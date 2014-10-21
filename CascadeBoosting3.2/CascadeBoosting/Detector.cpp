@@ -149,7 +149,7 @@ int Detector::detect(const Mat &image, int max_num, CB_RectT *pt_rects, int &sub
 	int image_w = image.cols;
 	int image_h = image.rows;
 
-	int feature_types = ((HaarParamT *)ptr_model->p_ft_param)->feature_types;
+	int feature_types = ptr_model->p_ft_param->getFeatureTypes();
 	IntegralImage intg;
 	intg.init(image_w, image_h, feature_types);
 	intg.compute(image.data);

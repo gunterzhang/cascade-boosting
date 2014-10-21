@@ -167,7 +167,7 @@ int HaarFeatureHub::initFromFile()
 
 	for (int i=0; i<feature_num; i++)
 	{
-		p_haars[i].loadFromFile(fp, haar_param);
+		p_haars[i].initFromFile(fp, haar_param);
 	}
 	fclose(fp);
 
@@ -204,6 +204,7 @@ int HaarFeatureHub::getAllFeatureInfos(int is_extract_feature)
 	info.abs = haar_param.is_abs;
 	info.bin_min = haar_param.bin_num;
 	info.tpl_size = haar_param.tpl_size;
+	info.bin_num = haar_param.bin_num;
 
 	info.pos2.x = 0;
 	info.pos2.y = 0;

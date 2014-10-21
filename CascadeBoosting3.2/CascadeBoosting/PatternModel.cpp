@@ -109,16 +109,6 @@ int PatternModel::loadFromFile(const string &file_path)
 }
 
 
-int PatternModel::addNewStage()
-{
-	stage_idx[stage_num] = weak_learner_num - 1;
-	double thd = p_weak_learners[weak_learner_num - 1].classify_thd;
-	stage_thd[stage_num] = thd;
-	stage_num++;
-	return 1;
-}
-
-
 int PatternModel::saveToFile(const string &file_path)
 {
 	FILE *fp = fopen(file_path.c_str(), "wt");
@@ -138,5 +128,15 @@ int PatternModel::saveToFile(const string &file_path)
 		p_features[i].saveToFile(fp);
 		p_weak_learners[i].saveToFile(file_path);
 	}
+	return 1;
+}
+
+
+int PatternModel::addNewStage()
+{
+	stage_idx[stage_num] = weak_learner_num - 1;
+	double thd = p_weak_learners[weak_learner_num - 1].classify_thd;
+	stage_thd[stage_num] = thd;
+	stage_num++;
 	return 1;
 }

@@ -87,7 +87,7 @@ HaarFeature::~HaarFeature(void)
 }
 
 
-int HaarFeature::loadFromFile(const FILE *fp, const FeatureParamT &param)
+int HaarFeature::initFromFile(FILE *fp, const FeatureParamT &param)
 {
 	const HaarParamT &init_param = (const HaarParamT &)param;
 
@@ -101,6 +101,22 @@ int HaarFeature::loadFromFile(const FILE *fp, const FeatureParamT &param)
 		    &info.pos2.x, &info.pos2.y,	
 			&info.size.x, &info.size.y, 
 			&info.inv_area);
+	return 1;
+}
+
+int HaarFeature::loadFromFile(FILE *fp, const FeatureParamT &param)
+{
+	const HaarParamT &init_param = (const HaarParamT &)param;
+	info.tpl_size = init_param.tpl_size;
+
+	fscanf(fp, "%d %d %d %d %d %d %d %d %lf ",
+		   &info.type, &info.abs,
+		   &info.pos1.x, &info.pos1.y,
+		   &info.pos2.x, &info.pos2.y,
+		   &info.size.x, &info.size.y,
+		   &info.inv_area);
+
+	fscanf(fp, "%d %lf %lf %lf\n", &info.bin_num, &info.bin_min, &info.bin_max, &info.bin_width);
 	return 1;
 }
 

@@ -31,6 +31,7 @@ int FernFeatureHub::initTrainingMem(int pos_num, int neg_num)
 	return 1;
 }
 
+
 int FernFeatureHub::init(const FeatureParamT &param)
 {
 	cleanUp();

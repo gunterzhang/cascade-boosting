@@ -30,7 +30,7 @@ public:
 	Feature(void);
 	virtual ~Feature(void);
 
-	virtual int loadFromFile(const FILE *fp, const FeatureParamT &init_param){return 1;};
+	virtual int loadFromFile(FILE *fp, const FeatureParamT &init_param) = 0;
 	virtual int saveToFile(FILE *fp){return 1;};
 	virtual int computeFeatureValue(const IntegralImage &intg, const SubwinInfoT &subwin, FeatureValueT &value) const{return 1;};
 	virtual int computeFeatureIndex(const IntegralImage &intg, const SubwinInfoT &subwin) const{return 1;};

@@ -37,7 +37,7 @@ int WeakLearner::saveToFile(const string &file_path)
 
 int WeakLearner::loadFromFile(const FILE *fp, const FeatureParamT &param)
 {
-	ptr_feature->loadFromFile(fp, param);
+	ptr_feature->loadFromFile((FILE *)fp, param);
 
 	for (int i=0; i<ptr_feature->getBinnum(); i++)
 	{

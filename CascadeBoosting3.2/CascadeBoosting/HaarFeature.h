@@ -85,7 +85,8 @@ public:
 	HaarFeature(void);
 	~HaarFeature(void);
 
-	int loadFromFile(const FILE *fp, const FeatureParamT &init_param);
+	int initFromFile(FILE *fp, const FeatureParamT &param);
+	int loadFromFile(FILE *fp, const FeatureParamT &init_param);
 	int saveToFile(FILE *fp);
 	int computeFeatureValue(const IntegralImage &intg, const SubwinInfoT &subwin, FeatureValueT &value) const;
 	int computeFeatureIndex(const IntegralImage &intg, const SubwinInfoT &subwin) const;

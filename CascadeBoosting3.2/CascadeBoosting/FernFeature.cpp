@@ -9,7 +9,6 @@ FernParamT::~FernParamT()
 
 int FernParamT::saveToModel(FILE *fp)
 {
-	fprintf(fp, "%d %d\n", fern_cell_num, bin_num);
 	haar_param.saveToModel(fp);
 	return 1;
 }
@@ -80,9 +79,10 @@ int FernFeature::init(const FeatureParamT &init_param)
 }
 
 
-int FernFeature::loadFromFile(const FILE *fp, const FeatureParamT &init_param)
+int FernFeature::loadFromFile(FILE *fp, const FeatureParamT &init_param)
 {
 	param = (FernParamT &)init_param;
+	fscanf(fp, "%d %d\n", &param.fern_cell_num, &param.bin_num);
 	for (int i=0; i<param.fern_cell_num; i++)
 	{
 		ptr_haars[i]->loadFromFile(fp, param.haar_param);
@@ -93,6 +93,7 @@ int FernFeature::loadFromFile(const FILE *fp, const FeatureParamT &init_param)
 
 int FernFeature::saveToFile(FILE *fp)
 {
+	fprintf(fp, "%d %d\n", param.fern_cell_num, param.bin_num);
 	for (int i=0; i<param.fern_cell_num; i++)
 	{
 		ptr_haars[i]->saveToFile(fp);
