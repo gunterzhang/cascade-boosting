@@ -70,13 +70,14 @@ int Boosting::init(TrainParamsT &params)
 	else 
 		return 0;
 
-	int rst = p_ft_hub->init(*(params.ptr_ft_param));
+	int rst = p_ft_hub->initFromConfig(params.ft_config_path);
 	if (rst <= 0)
 	{
 		return 0;
 	}
 
 	feature_num = p_ft_hub->getFeatureNum();
+	bin_num = p_ft_hub->getBinNum();
 
 	FILE *fp = fopen(ptr_params->train_log_path.c_str(), "at");
 	fprintf(fp, "feature num:%d\n", feature_num);
@@ -85,7 +86,7 @@ int Boosting::init(TrainParamsT &params)
 	max_pos_sample_num = params.positive_num;
 	max_neg_sample_num = max(params.min_negative_num, params.positive_num) + params.max_neg_per_image * 2;
 
-	p_ft_hub->initTrainingMem(max_pos_sample_num, max_neg_sample_num);
+	p_ft_hub->newTrainingMem(max_pos_sample_num, max_neg_sample_num);
 
 	positive_weights = new double[max_pos_sample_num];
 	negative_weights = new double[max_neg_sample_num];
@@ -96,22 +97,6 @@ int Boosting::init(TrainParamsT &params)
 	return 1;
 }
 
-
-int Boosting::initWeights()
-{
-	double weight = 0.5 / positive_num;
-	for (int i=0; i<positive_num; i++)
-	{
-		positive_weights[i] = weight;
-	}
-
-	weight = 0.5 / negative_num;
-	for (int i=0; i<negative_num; i++)
-	{
-		negative_weights[i] = weight;
-	}
-	return 1;
-}
 
 
 int Boosting::prepareNewStage(PatternModel &model)
@@ -148,8 +133,6 @@ int Boosting::learnOneWeakLearner(WeakLearner &weak_learner)
 	double min_BHC = 99999.0;
 	int best_feature_idx;
 
-	int bin_num = ptr_params->ptr_ft_param->bin_num;
-
 	for (int i=0; i<feature_num; i++)
 	{
 		if (isFeatureLearned(i) == 1)
@@ -161,13 +144,11 @@ int Boosting::learnOneWeakLearner(WeakLearner &weak_learner)
 
 		for (int j=0; j<positive_num; j++)
 		{
-			int idx = i * positive_num + j;
 			int bin_idx = p_ft_hub->getPosFeatureIdx(j, i);
 			positive_hist[bin_idx] += positive_weights[j];
 		}
 		for (int j=0; j<negative_num; j++)
 		{
-			int idx = i * negative_num + j;
 			int bin_idx = p_ft_hub->getNegFeatureIdx(j, i);
 			negative_hist[bin_idx] += negative_weights[j];
 		}
@@ -185,20 +166,18 @@ int Boosting::learnOneWeakLearner(WeakLearner &weak_learner)
 		}
 	}
 
-	weak_learner.init(p_ft_hub->getFeature(best_feature_idx));
+	weak_learner.setFeature(p_ft_hub->getFeature(best_feature_idx));
 
 	memset(positive_hist, 0, bin_num * sizeof(positive_hist[0]));
 	memset(negative_hist, 0, bin_num * sizeof(negative_hist[0]));
 
 	for (int i=0; i<positive_num; i++)
 	{
-		int idx = best_feature_idx * positive_num + i;
 		int binIndex = p_ft_hub->getPosFeatureIdx(i, best_feature_idx);
 		positive_hist[binIndex] += positive_weights[i];
 	}
 	for (int i=0; i<negative_num; i++)
 	{
-		int idx = best_feature_idx * negative_num + i;
 		int binIndex = p_ft_hub->getNegFeatureIdx(i, best_feature_idx); 
 		negative_hist[binIndex] += negative_weights[i]; 
 	}
@@ -235,16 +214,13 @@ int Boosting::updateWeights(const WeakLearner &weak_learner, int iteration_idx)
 	double weight_sum = 0;
 	for (int i=0; i<positive_num; i++)
 	{
-		int idx = feature_idx * positive_num + i;
 		int bin_idx = p_ft_hub->getPosFeatureIdx(i, feature_idx);
 		double value = weak_learner.output[bin_idx];
 		positive_weights[i] *= exp(-value);
 		weight_sum += positive_weights[i];
 	}
-
 	for (int i=0; i<negative_num; i++)
 	{
-		int idx = feature_idx * negative_num + i;
 		int bin_idx = p_ft_hub->getNegFeatureIdx(i, feature_idx);
 		double value = weak_learner.output[bin_idx];
 		negative_weights[i] *= exp(value);
@@ -277,7 +253,6 @@ double Boosting::getStrongLearnerThd(const PatternModel &model)
 		{
 			int feature_idx = learned_feature_idx[j];
 			int binIndex = p_ft_hub->getNegFeatureIdx(i, feature_idx);
-
 			double score = model.p_weak_learners[j].output[binIndex];
 			negative_scores[i] += score;
 		}
@@ -460,7 +435,17 @@ int Boosting::filterNegativeSamples(const PatternModel &model)
 
 int Boosting::reweight(PatternModel &model)
 {
-	initWeights();
+	double weight = 0.5 / positive_num;
+	for (int i=0; i<positive_num; i++)
+	{
+		positive_weights[i] = weight;
+	}
+
+	weight = 0.5 / negative_num;
+	for (int i=0; i<negative_num; i++)
+	{
+		negative_weights[i] = weight;
+	}
 
 	for (int i=0; i<model.weak_learner_num; i++)
 	{

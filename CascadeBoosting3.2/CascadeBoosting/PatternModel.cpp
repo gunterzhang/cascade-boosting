@@ -36,29 +36,28 @@ void PatternModel::cleanUp()
 }
 
 
-int PatternModel::init(int max_wl_num, const FeatureParamT *ptr_param, FeatureTypeE type)
+int PatternModel::init(const TrainParamsT *ptr_params)
 {
 	cleanUp();
+
+	int max_wl_num = ptr_params->max_weak_learner_num;
 	p_weak_learners = new WeakLearner[max_wl_num];
 
-	feature_type = type;
-	if (type == FeatureTypeE::FERN)
+	feature_type = ptr_params->feature_type;
+	if (feature_type == FeatureTypeE::FERN)
 	{
 		p_features = new FernFeature[max_wl_num];
 		p_ft_param = new FernParamT;
-		(*(FernParamT *)p_ft_param) = *((FernParamT *)ptr_param);
 	}
-	else if (type == FeatureTypeE::HAAR)
+	else if (feature_type == FeatureTypeE::HAAR)
 	{
 		p_features = new HaarFeature[max_wl_num];
 		p_ft_param = new HaarParamT;
-		(*(HaarParamT *)p_ft_param) = *((HaarParamT *)ptr_param);
 	}
 
-	for (int i=0; i<max_wl_num; i++)
-	{
-		p_weak_learners->init(p_features);
-	}
+	FILE *fp = fopen(ptr_params->ft_config_path.c_str(), "rt");
+	p_ft_param->initFromConfig(fp);
+	fclose(fp);
 
 	stage_num = 0;
 	weak_learner_num = 0;
@@ -67,7 +66,7 @@ int PatternModel::init(int max_wl_num, const FeatureParamT *ptr_param, FeatureTy
 }
 
 
-int PatternModel::loadFromFile(const string &file_path)
+int PatternModel::loadFromModel(const string &file_path)
 {
 	cleanUp();
 	
@@ -75,33 +74,28 @@ int PatternModel::loadFromFile(const string &file_path)
 	fscanf(fp, "%d\n", &feature_type);
 	
 	if (feature_type == FeatureTypeE::FERN)
-	{
-		p_features = new FernFeature[weak_learner_num];
 		p_ft_param = new FernParamT;
-	}
 	else if (feature_type == FeatureTypeE::HAAR)
-	{
-		p_features = new HaarFeature[weak_learner_num];
 		p_ft_param = new HaarParamT;
-	}
+
 	p_ft_param->loadFromModel(fp);
 	fscanf(fp, "%d\n", &weak_learner_num);
 	fscanf(fp, "%d\n", &stage_num);
-
-	if (feature_type == FeatureTypeE::FERN)
-		p_features = new FernFeature[weak_learner_num];
-	else if (feature_type == FeatureTypeE::HAAR)
-		p_features = new HaarFeature[weak_learner_num];
 
 	for (int i=0; i<stage_num; i++)
 	{
 		fscanf(fp, "%d %lf\n", &stage_idx[i], &stage_thd[i]);
 	}
 
+	if (feature_type == FeatureTypeE::FERN)
+		p_features = new FernFeature[weak_learner_num];
+	else if (feature_type == FeatureTypeE::HAAR)
+		p_features = new HaarFeature[weak_learner_num];
+
 	for (int i=0; i<weak_learner_num; i++)
 	{
-		p_weak_learners->init(p_features);
-		p_weak_learners[i].loadFromFile(fp, *(p_ft_param));
+		p_weak_learners->setFeature(&p_features[i]);
+		p_weak_learners[i].loadFromModel(fp);
 	}
 
 	fclose(fp);
@@ -109,7 +103,7 @@ int PatternModel::loadFromFile(const string &file_path)
 }
 
 
-int PatternModel::saveToFile(const string &file_path)
+int PatternModel::saveToModel(const string &file_path)
 {
 	FILE *fp = fopen(file_path.c_str(), "wt");
 	fprintf(fp, "%d\n", feature_type);
@@ -125,7 +119,7 @@ int PatternModel::saveToFile(const string &file_path)
 
 	for (int i=0; i<weak_learner_num; i++)
 	{
-		p_weak_learners[i].saveToFile(file_path);
+		p_weak_learners[i].saveToModel(file_path);
 	}
 	return 1;
 }

@@ -6,6 +6,7 @@ HaarParamT::~HaarParamT()
 {
 }
 
+
 int HaarParamT::saveToModel(FILE *fp)
 {
 	fprintf(fp, "%d %d\n", tpl_size.x, tpl_size.y);
@@ -24,7 +25,7 @@ int HaarParamT::loadFromModel(FILE *fp)
 }
 
 
-int HaarParamT::loadFromConfig(FILE *fp)
+int HaarParamT::initFromConfig(FILE *fp)
 {
 	char tmp_str[1000];
 
@@ -87,16 +88,13 @@ HaarFeature::~HaarFeature(void)
 }
 
 
-int HaarFeature::initFromFile(FILE *fp, const FeatureParamT &param)
+int HaarFeature::loadCandid(FILE *fp)
 {
-	const HaarParamT &init_param = (const HaarParamT &)param;
-
-	info.tpl_size = init_param.tpl_size;
-	info.bin_num = init_param.bin_num;
 	char line[1000];
 	fgets(line, sizeof(line), (FILE *)fp);
-	sscanf(line, "%d %d %d %d %d %d %d %d %lf ",
-			&info.type, &info.abs,
+	sscanf(line, "%d %d %d %d %d %d %d %d %d %d %lf",
+			&info.tpl_size.x, &info.tpl_size.y,
+		    &info.type, &info.abs,
 		    &info.pos1.x, &info.pos1.y,
 		    &info.pos2.x, &info.pos2.y,	
 			&info.size.x, &info.size.y, 
@@ -104,12 +102,11 @@ int HaarFeature::initFromFile(FILE *fp, const FeatureParamT &param)
 	return 1;
 }
 
-int HaarFeature::loadFromFile(FILE *fp, const FeatureParamT &param)
-{
-	const HaarParamT &init_param = (const HaarParamT &)param;
-	info.tpl_size = init_param.tpl_size;
 
-	fscanf(fp, "%d %d %d %d %d %d %d %d %lf ",
+int HaarFeature::loadFromModel(FILE *fp)
+{
+	fscanf(fp, "%d %d %d %d %d %d %d %d %d %d %lf ",
+		   &info.tpl_size.x, &info.tpl_size.y,
 		   &info.type, &info.abs,
 		   &info.pos1.x, &info.pos1.y,
 		   &info.pos2.x, &info.pos2.y,
@@ -121,10 +118,11 @@ int HaarFeature::loadFromFile(FILE *fp, const FeatureParamT &param)
 }
 
 
-int HaarFeature::saveToFile(const string &file_path)
+int HaarFeature::saveToModel(const string &file_path)
 {
 	FILE *fp = fopen(file_path.c_str(), "at");
-	fprintf(fp, "%d %d %d %d %d %d %d %d %lf ",
+	fprintf(fp, "%d %d %d %d %d %d %d %d %d %d %lf ",
+			info.tpl_size.x, info.tpl_size.y,
 			info.type, info.abs,
 		    info.pos1.x, info.pos1.y,
 		    info.pos2.x, info.pos2.y,
@@ -639,7 +637,7 @@ int HaarFeature::computeFeatureValue(const IntegralImage &intg, const SubwinInfo
 }
 
 
-int HaarFeature::computeFeatureIndex(const IntegralImage &intg, const SubwinInfoT &subwin) const
+int HaarFeature::computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin) const
 {
 	HaarFeatureValueT haar_feature_value;
 	computeFeatureValue(intg, subwin, haar_feature_value);
@@ -648,7 +646,7 @@ int HaarFeature::computeFeatureIndex(const IntegralImage &intg, const SubwinInfo
 }
 
 
-int HaarFeature::computeFeatureIndex(FeatureValueT &src_feature_value) const
+int HaarFeature::computeFeatureIndex(const FeatureValueT &src_feature_value) const
 {
 	HaarFeatureValueT &haar_feature_value = (HaarFeatureValueT &)src_feature_value;
 	double value = haar_feature_value.value;
@@ -694,5 +692,13 @@ inline int HaarFeature::isPointValid(const CB_PointT &point, const CB_PointT &im
 	{
 		return 0;
 	}
+	return 1;
+}
+
+
+int HaarFeature::setParam(FeatureParamT *ptr_param)
+{
+	HaarParamT *ptr_haar_param = (HaarParamT *)ptr_param;
+	info.bin_num = ptr_haar_param->bin_num;
 	return 1;
 }

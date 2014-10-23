@@ -8,6 +8,7 @@
 
 using namespace std;
 
+
 struct TrainParamsT
 {
 	int is_train_test;
@@ -60,6 +61,4 @@ struct TrainParamsT
 	int is_size_len_on;
 	int neg_min_w;
 	int neg_max_w;
-
-	FeatureParamT *ptr_ft_param;
 };

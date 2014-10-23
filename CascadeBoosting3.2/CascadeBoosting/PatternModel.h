@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include "WeakLearner.h"
 #include "FernFeature.h"
-
+#include "TrainParams.h"
 
 class PatternModel
 {
@@ -10,9 +10,9 @@ public:
 	PatternModel(void);
 	~PatternModel(void);
 
-	int init(int max_wl_num, const FeatureParamT *ptr_param, FeatureTypeE type);
-	int loadFromFile(const string &file_path);
-	int saveToFile(const string &file_path);
+	int init(const TrainParamsT *ptr_params);
+	int loadFromModel(const string &file_path);
+	int saveToModel(const string &file_path);
 	int addNewStage();
 
 private:

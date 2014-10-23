@@ -1,10 +1,10 @@
-FernCellNum:     2
+FernCellNum:     1
 IsFromCandid:    0
-CandidPath:      E:\ChainBoosting_Train\01-Train\CascadeBoosting3.6\x64\Debug\config\fern.candid
-HaarBinNum:      8
+CandidPath:      E:\ChainBoosting_Train\01-Train\CascadeBoosting3.7\x64\Debug\config\fern.candid
+HaarBinNum:      50
 TemplateWidth:   48
 TemplateHeight:  48
 FeatureType:     1
-FeatureAbs:      1
+FeatureAbs:      0
 IsFromCandid:    1
-CandidPath:      E:\ChainBoosting_Train\01-Train\CascadeBoosting3.6\x64\Debug\config\haar.candid
+CandidPath:      E:\ChainBoosting_Train\01-Train\CascadeBoosting3.7\x64\Debug\config\haar.candid

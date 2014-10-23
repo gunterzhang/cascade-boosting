@@ -13,135 +13,129 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\NewFilter1">
-      <UniqueIdentifier>{4e472b3b-9074-4f59-a265-eeee78d30857}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\NewFilter1">
-      <UniqueIdentifier>{470126be-3260-4d51-b918-7f5376be1834}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HaarFeature.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NegativeExtractor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WeakLearner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Boosting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cascade.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PositiveExtractor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Detector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HaarFeatureHub.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PatternModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FernFeatureHub.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FeatureHub.h">
+    <ClInclude Include="Cascade.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Feature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FeatureHub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="FernFeature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FernFeatureHub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HaarFeature.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HaarFeatureHub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="IntegralImage.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NegativeExtractor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ObjMerger.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tester.h">
-      <Filter>Header Files\NewFilter1</Filter>
+    <ClInclude Include="PatternModel.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files\NewFilter1</Filter>
+    <ClInclude Include="PositiveExtractor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tester.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TrainParams.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeakLearner.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HaarFeature.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WeakLearner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Boosting.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NegativeExtractor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cascade.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PositiveExtractor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Detector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HaarFeatureHub.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PatternModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FernFeatureHub.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FeatureHub.cpp">
+    <ClCompile Include="Cascade.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Feature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FeatureHub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="FernFeature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FernFeatureHub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HaarFeature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HaarFeatureHub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="IntegralImage.cpp">
-      <Filter>Source Files\NewFilter1</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files\NewFilter1</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NegativeExtractor.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ObjMerger.cpp">
-      <Filter>Source Files\NewFilter1</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PatternModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PositiveExtractor.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files\NewFilter1</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tester.cpp">
-      <Filter>Source Files\NewFilter1</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
-      <Filter>Source Files\NewFilter1</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WeakLearner.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

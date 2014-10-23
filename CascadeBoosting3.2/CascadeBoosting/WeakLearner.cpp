@@ -12,18 +12,20 @@ WeakLearner::~WeakLearner(void)
 }
 
 
-int WeakLearner::init(Feature *ptr_feature)
+int WeakLearner::setFeature(Feature *ptr_feature)
 {
 	this->ptr_feature = ptr_feature;
 	return 1;
 }
 
 
-int WeakLearner::saveToFile(const string &file_path)
+int WeakLearner::saveToModel(const string &file_path)
 {
-	ptr_feature->saveToFile(file_path);
+	ptr_feature->saveToModel(file_path);
+
 	FILE *fp = fopen(file_path.c_str(), "at");
-	for (int i=0; i<ptr_feature->getBinnum(); i++)
+
+	for (int i=0; i<ptr_feature->getBinNum(); i++)
 	{
 		fprintf(fp, "%lf ", output[i]);
 	}
@@ -34,11 +36,12 @@ int WeakLearner::saveToFile(const string &file_path)
 	return 1;
 }
 
-int WeakLearner::loadFromFile(const FILE *fp, const FeatureParamT &param)
-{
-	ptr_feature->loadFromFile((FILE *)fp, param);
 
-	for (int i=0; i<ptr_feature->getBinnum(); i++)
+int WeakLearner::loadFromModel(const FILE *fp)
+{
+	ptr_feature->loadFromModel((FILE *)fp);
+
+	for (int i=0; i<ptr_feature->getBinNum(); i++)
 	{
 		fscanf((FILE *)fp, "%lf ", &(output[i]));
 	}
@@ -50,6 +53,12 @@ int WeakLearner::loadFromFile(const FILE *fp, const FeatureParamT &param)
 
 double WeakLearner::test(const IntegralImage &intg, const SubwinInfoT &subwin)
 {
-	int bin_index = ptr_feature->computeFeatureIndex(intg, subwin);
+	int bin_index = ptr_feature->computeFeature(intg, subwin);
 	return output[bin_index];
+}
+
+
+int WeakLearner::getBinNum()
+{
+	return ptr_feature->getBinNum();
 }

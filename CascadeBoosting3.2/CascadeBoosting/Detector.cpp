@@ -43,7 +43,7 @@ int Detector::init(const string &model_path)
 		return 0;
 	}
 
-	model.loadFromFile(model_path);
+	model.loadFromModel(model_path);
 
 	ptr_model = &model;
 

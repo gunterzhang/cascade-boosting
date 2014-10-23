@@ -3,9 +3,9 @@
 #include <fstream>
 #include "TrainParams.h"
 #include "Boosting.h"
+#include "PatternModel.h"
 #include "NegativeExtractor.h"
 #include "PositiveExtractor.h"
-#include "PatternModel.h"
 
 
 class Cascade
@@ -21,12 +21,10 @@ private:
 	int test();
 
 	int trainInit();
-	int cleanUp();
 
 	int initWorkDir();
-	int parseSearchParams(char *tmp_str, FILE *fp);
 	int loadConfig(int is_train);
-	int loadFeatureConfig();
+	int parseSearchParams(char *tmp_str, FILE *fp);
 
 	int extractPositiveSamples();
 	int extractNegativeSamples();
@@ -35,9 +33,7 @@ private:
 	int updateStageModel();
 
 private:
-	TrainParamsT *ptr_train_params;
-	FeatureParamT *p_ft_params;
-
+	TrainParamsT *ptr_params;
 	Boosting boosting;
 	PatternModel model;
 	NegativeExtractor neg_extractor;

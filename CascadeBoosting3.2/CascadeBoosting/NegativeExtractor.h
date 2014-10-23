@@ -26,6 +26,7 @@ private:
 	TrainParamsT *ptr_params;
 	IntegralImage sample_intg;
 	Detector detector;
+	PatternModel *ptr_model;
 
 	double scan_shift_step;
 	double scan_scale_step;

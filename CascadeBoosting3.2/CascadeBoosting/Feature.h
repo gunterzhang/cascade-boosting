@@ -10,9 +10,9 @@ struct FeatureParamT
 	string candid_path;
 
 	virtual ~FeatureParamT(){};
+	virtual int initFromConfig(FILE *fp) = 0;
 	virtual int saveToModel(FILE *fp) = 0;
 	virtual int loadFromModel(FILE *fp) = 0;
-	virtual int loadFromConfig(FILE *fp) = 0;
 	virtual CB_PointT getTemplateSize() = 0;
 	virtual int getFeatureTypes() = 0;
 };
@@ -30,11 +30,12 @@ public:
 	Feature(void);
 	virtual ~Feature(void);
 
-	virtual int loadFromFile(FILE *fp, const FeatureParamT &init_param) = 0;
-	virtual int saveToFile(const string &file_path) = 0;
+	virtual int loadFromModel(FILE *fp) = 0;
+	virtual int saveToModel(const string &file_path) = 0;
+	virtual int computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin) const{return 1;};
 	virtual int computeFeatureValue(const IntegralImage &intg, const SubwinInfoT &subwin, FeatureValueT &value) const{return 1;};
-	virtual int computeFeatureIndex(const IntegralImage &intg, const SubwinInfoT &subwin) const{return 1;};
-	virtual int computeFeatureIndex(FeatureValueT &feature_value) const{return 1;};
-	virtual int getBinnum() = 0;
+	virtual int computeFeatureIndex(const FeatureValueT &feature_value) const{return 1;};
+	virtual int getBinNum() = 0;
+	virtual int setParam(FeatureParamT *ptr_param) = 0;
 };
 

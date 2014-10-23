@@ -18,12 +18,7 @@ int NegativeExtractor::init(TrainParamsT &params)
 {
 	ptr_params = &params;
 
-	CB_PointT tpl_size = params.ptr_ft_param->getTemplateSize();
-
-	scan_shift_step = tpl_size.x * 2;
-	scan_scale_step = 3.0;
 	total_negative_count = 0;
-
 	pool_image_idx = 0;
 	
 	//----read label setting file
@@ -64,8 +59,14 @@ int NegativeExtractor::init(TrainParamsT &params)
 
 int NegativeExtractor::extractSamples(int needed_num, const PatternModel *model)
 {
+	ptr_model = (PatternModel *)model;
+	CB_PointT tpl_size = model->p_ft_param->getTemplateSize();
+
+	scan_shift_step = tpl_size.x * 2;
+	scan_scale_step = 3.0;
+
 	static int is_last = 0;
-	detector.init((PatternModel *)model);
+	detector.init(ptr_model);
 
 	int added_sum = 0;
 	detect_count = 0;
@@ -335,7 +336,7 @@ void  NegativeExtractor::saveTrainingData(const Mat &image, CvRect rect)
 	Mat sub_image;
 	image(rect).copyTo(sub_image);
 
-	sample_intg.init(sub_image.cols, sub_image.rows, ptr_params->ptr_ft_param->getFeatureTypes());
+	sample_intg.init(sub_image.cols, sub_image.rows, ptr_model->p_ft_param->getFeatureTypes());
 	sample_intg.compute(sub_image.data);
 	sample_intg.save(ptr_params->negative_data_path);
 }

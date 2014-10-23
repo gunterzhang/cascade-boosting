@@ -24,10 +24,10 @@ void FernFeatureHub::cleanUp()
 }
 
 
-int FernFeatureHub::initTrainingMem(int pos_num, int neg_num)
+int FernFeatureHub::newTrainingMem(int pos_num, int neg_num)
 {
-	FeatureHub::initTrainingMem(pos_num, neg_num);
-	haar_hub.initTrainingMem(pos_num, neg_num);
+	FeatureHub::newTrainingMem(pos_num, neg_num);
+	haar_hub.newTrainingMem(pos_num, neg_num);
 	return 1;
 }
 
@@ -40,7 +40,7 @@ int FernFeatureHub::init(const FeatureParamT &param)
 
 	if (fern_param.is_candid == 1)
 	{
-		int rst = initFromFile();
+		int rst = loadCandid();
 		return rst;
 	}
 
@@ -55,8 +55,23 @@ int FernFeatureHub::init(const FeatureParamT &param)
 }
 
 
-int FernFeatureHub::initFromFile()
+int FernFeatureHub::loadCandid()
 {
+	//todo: load fern candidates from file
+	return 1;
+}
+
+
+int FernFeatureHub::initFromConfig(const string &path)
+{
+	FILE *fp = fopen(path.c_str(), "rt");
+	fern_param.initFromConfig(fp);
+	fclose(fp);
+
+	bin_num = fern_param.bin_num;
+
+	init(fern_param);
+
 	return 1;
 }
 
@@ -81,6 +96,7 @@ int FernFeatureHub::trainFeatures(int pos_num, int neg_num)
 {
 	this->pos_num = pos_num;
 	this->neg_num = neg_num;
+
 	FernFeatureValueT *pt_pos_fern_values = (FernFeatureValueT*)p_pos_features;
 	FernFeatureValueT *pt_neg_fern_values = (FernFeatureValueT*)p_neg_features;
 
@@ -111,7 +127,7 @@ int FernFeatureHub::computePosFeatureIdx(int sampleIdx, int featureIdx)
 	int exp = 1;
 	for (int i=0; i<fern_param.fern_cell_num; i++)
 	{
-		int haar_idx = fern.haars_idx[i];
+		int haar_idx = fern.info.haars_idx[i];
 		int bin_index = haar_hub.getPosFeatureIdx(sampleIdx, haar_idx);
 		index += bin_index * exp;
 		exp *= fern_param.haar_param.bin_num;
@@ -127,7 +143,7 @@ int FernFeatureHub::computeNegFeatureIdx(int sampleIdx, int featureIdx)
 	int exp = 1;
 	for (int i=0; i<fern_param.fern_cell_num; i++)
 	{
-		int haar_idx = fern.haars_idx[i];
+		int haar_idx = fern.info.haars_idx[i];
 		int bin_index = haar_hub.getNegFeatureIdx(sampleIdx, haar_idx);
 		index += bin_index * exp;
 		exp *= fern_param.haar_param.bin_num;
@@ -155,17 +171,18 @@ int FernFeatureHub::getNegFeatureIdx(int sampleIdx, int featureIdx)
 int FernFeatureHub::getAllFeatureInfos(int is_extract_feature)
 {
 	int count = 0;
-	int bin_num = haar_hub.getFeatureNum();
-	for (int i=0; i<bin_num; i++)
+	int haar_num = haar_hub.getFeatureNum();
+
+	for (int i=0; i<haar_num; i++)
 	{
-		for (int j=i+1; j<bin_num; j++)
+		//for (int j=i+1; j<haar_num; j++)
 		{
 			if (is_extract_feature == 1)
 			{
-				p_ferns[count].ptr_haars[0] = &haar_hub.p_haars[i];
-				p_ferns[count].haars_idx[0] = i;
-				p_ferns[count].ptr_haars[1] = &haar_hub.p_haars[j];
-				p_ferns[count].haars_idx[1] = j;
+				p_ferns[count].info.ptr_haars[0] = &(haar_hub.p_haars[i]);
+				p_ferns[count].info.haars_idx[0] = i;
+				//p_ferns[count].info.ptr_haars[1] = &(haar_hub.p_haars[j]);
+				//p_ferns[count].info.haars_idx[1] = j;
 			}
 			count++;
 		}

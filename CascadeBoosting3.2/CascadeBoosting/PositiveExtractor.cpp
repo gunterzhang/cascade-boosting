@@ -13,12 +13,12 @@ PositiveExtractor::~PositiveExtractor(void)
 }
 
 
-int PositiveExtractor::extractSamples(const TrainParamsT *pt_params)
+int PositiveExtractor::extractSamples(const TrainParamsT *pt_params, const PatternModel *model)
 {
 	IntegralImage intg;
 
-	CB_PointT tpl_size = pt_params->ptr_ft_param->getTemplateSize();
-	int feature_types = pt_params->ptr_ft_param->getFeatureTypes();
+	CB_PointT tpl_size = model->p_ft_param->getTemplateSize();
+	int feature_type = model->p_ft_param->getFeatureTypes();
 
 	_chdir(pt_params->positive_pool_dir.c_str());
 	CFileFind file_finder;
@@ -52,10 +52,17 @@ int PositiveExtractor::extractSamples(const TrainParamsT *pt_params)
 			continue;
 		}
 	
-		intg.init(width, height, pt_params->ptr_ft_param->getFeatureTypes());
+		intg.init(width, height, feature_type);
 		intg.compute(image.data);
 		intg.save(pt_params->positive_data_path);
 		count++;
  	}
+	sample_num = count;
 	return count;
+}
+
+
+int PositiveExtractor::getSampleNum()
+{
+	return sample_num;	
 }

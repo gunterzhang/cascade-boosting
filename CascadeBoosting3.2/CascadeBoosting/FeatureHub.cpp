@@ -16,7 +16,7 @@ FeatureHub::~FeatureHub(void)
 }
 
 
-int FeatureHub::initTrainingMem(int pos_num, int neg_num)
+int FeatureHub::newTrainingMem(int pos_num, int neg_num)
 {
 	cleanUp();
 	p_pos_features = createTrainingMemory(pos_num);

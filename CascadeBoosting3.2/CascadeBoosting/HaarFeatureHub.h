@@ -18,7 +18,9 @@ public:
 	HaarFeatureHub(void);
 	~HaarFeatureHub(void);
 
+	int initFromConfig(const string &path);
 	int init(const FeatureParamT &param);
+	int loadCandid();
 	int getFeatureNum();
 	FeatureValueT *createTrainingMemory(int num);
 	int releaseTrainingMemory(FeatureValueT* &pt_featureValue);
@@ -30,7 +32,6 @@ public:
 
 private:
 	void cleanUp();
-	int initFromFile();
 	int trainFeatures(int pos_num, FeatureValueT *pt_pos_haar_values,
 		              int neg_num, FeatureValueT *pt_neg_haar_values);
 	int extractFeatures(int sample_num, const string &data_path, FeatureValueT *pt_features);
@@ -42,9 +43,11 @@ private:
 	int extractOneTypeFeaturesAB(int is_extract_feature, HaarFeatureInfoT &info);
 
 public:	
+	HaarParamT haar_param;
 	HaarFeature *p_haars;
 	IntegralImage intg;
-	HaarParamT haar_param;
+
+	int feature_count;
 
 	CB_PointT feature_sizes[MAX_FEATURE_TYPE_NUM];
 	int feature_inv_ratio[MAX_FEATURE_TYPE_NUM];

@@ -20,7 +20,6 @@ public:
 
 private:
 	int cleanUp();
-	int initWeights();
 	int reweight(PatternModel &model);
 	int learnOneWeakLearner(WeakLearner &weak_learner);
 	int updateWeights(const WeakLearner &weak_learner, int iteration_idx);
@@ -34,22 +33,22 @@ private:
 
 private:
 	TrainParamsT *ptr_params;
+	PatternModel *ptr_model;
 
 	FeatureHub *p_ft_hub;
 
+	int positive_num;
+	int negative_num;
 	int max_pos_sample_num;
 	int max_neg_sample_num;
 
-	int positive_num;
-	int negative_num;
-
 	double *positive_weights;
 	double *negative_weights;
-
 	double *positive_scores;
 	double *negative_scores;
 
 	int feature_num;
+	int bin_num;
 
 	int learned_feature_idx[MAX_ROUND_NUM];
 

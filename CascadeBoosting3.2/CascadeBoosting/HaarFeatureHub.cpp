@@ -135,7 +135,7 @@ int HaarFeatureHub::init(const FeatureParamT &param)
 
 	if (haar_param.is_candid == 1)
 	{
-		int rst = initFromFile();
+		int rst = loadCandid();
 		return rst;
 	}
 
@@ -147,9 +147,22 @@ int HaarFeatureHub::init(const FeatureParamT &param)
 }
 
 
-int HaarFeatureHub::initFromFile()
+int HaarFeatureHub::initFromConfig(const string &path)
 {
-	FILE *fp = fopen(haar_param.candid_path.c_str(), "rb");
+	FILE *fp = fopen(path.c_str(), "rt");
+	haar_param.initFromConfig(fp);
+	fclose(fp);
+
+	bin_num = haar_param.bin_num;
+
+	init(haar_param);
+	return 1;
+}
+
+
+int HaarFeatureHub::loadCandid()
+{
+	FILE *fp = fopen(haar_param.candid_path.c_str(), "rt");
 	if (fp == NULL)
 	{
 		return 0;
@@ -167,7 +180,8 @@ int HaarFeatureHub::initFromFile()
 
 	for (int i=0; i<feature_num; i++)
 	{
-		p_haars[i].initFromFile(fp, haar_param);
+		p_haars[i].loadCandid(fp);
+		p_haars[i].setParam(&haar_param);
 	}
 	fclose(fp);
 
@@ -186,7 +200,7 @@ int HaarFeatureHub::extractAllFeatures(FILE *fp, HaarFeatureValueT *pt_features)
 
 	for (int i=0; i<feature_num; i++)
 	{
-		(pt_features + i)->value = extractFeature(p_haars[i]);
+		pt_features[i].value = extractFeature(p_haars[i]);
 	}
 	return 1;
 }

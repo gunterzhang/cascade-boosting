@@ -9,8 +9,9 @@ public:
 	FernFeatureHub(void);
 	~FernFeatureHub(void);
 
+	int initFromConfig(const string &path);
 	int init(const FeatureParamT &param);
-	int initTrainingMem(int pos_num, int neg_num);
+	int newTrainingMem(int pos_num, int neg_num);
 	int train(int pos_num, const string &pos_data_path, 
 	          int neg_num, const string &neg_data_path);
 	int getFeatureNum();
@@ -23,7 +24,7 @@ public:
 
 private:
 	void cleanUp();
-	int initFromFile();
+	int loadCandid();
 	int trainFeatures(int pos_num, int neg_num);
 	int getFernsInfo(int flag);
 	const FernFeature *extractAllFeatures(FILE *fp);
@@ -33,8 +34,8 @@ private:
 
 
 public:
+	FernParamT fern_param;
 	HaarFeatureHub haar_hub;
 	FernFeature *p_ferns;
-	FernParamT fern_param;
 };
 

@@ -37,7 +37,7 @@ typedef enum {
 	HFT_SQ_L_ABBA = HFT_L_ABBA + HFT_STEP1,
 	HFT_SQ_R_ABBA = HFT_R_ABBA + HFT_STEP1,
 	HFT_SQ_A_B = HFT_A_B + HFT_STEP1
-}FeatureTypeT;
+}HaarFeatureTypeT;
 
 
 struct HaarParamT : FeatureParamT
@@ -47,9 +47,9 @@ struct HaarParamT : FeatureParamT
 	CB_PointT tpl_size;
 
 	~HaarParamT();
+	virtual int initFromConfig(FILE *fp);
 	virtual int saveToModel(FILE *fp);
 	virtual int loadFromModel(FILE *fp);
-	virtual int loadFromConfig(FILE *fp);
 	virtual CB_PointT getTemplateSize();
 	virtual int getFeatureTypes();
 };
@@ -85,13 +85,14 @@ public:
 	HaarFeature(void);
 	~HaarFeature(void);
 
-	int initFromFile(FILE *fp, const FeatureParamT &param);
-	int loadFromFile(FILE *fp, const FeatureParamT &init_param);
-	int saveToFile(const string &file_path);
+	int loadCandid(FILE *fp);
+	int loadFromModel(FILE *fp);
+	int saveToModel(const string &file_path);
+	int computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin) const;
 	int computeFeatureValue(const IntegralImage &intg, const SubwinInfoT &subwin, FeatureValueT &value) const;
-	int computeFeatureIndex(const IntegralImage &intg, const SubwinInfoT &subwin) const;
-	int computeFeatureIndex(FeatureValueT &feature_value) const;
-	int getBinnum(){return info.bin_num;};
+	int computeFeatureIndex(const FeatureValueT &feature_value) const;
+	int getBinNum(){return info.bin_num;};
+	int setParam(FeatureParamT *ptr_param);
 
 public:
 	static int slantToRect(const CB_SlantT &slant, CB_RectangleT &rect, const CB_PointT &image_size);

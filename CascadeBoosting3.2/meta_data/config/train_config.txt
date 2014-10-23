@@ -1,4 +1,4 @@
-Feature:         fern
+Feature:         haar
 StageNum:        22
 MaxLearnerNum:   500
 DetectionRate:   0.999500
@@ -8,11 +8,11 @@ MinNegNum:       100
 MaxNegPerImage:  10
 Neg_Start_X_R:   0
 Neg_End_X_R:     1
-Neg_Start_Y_R:   0.5
-Neg_End_Y_R:     0.95
-Size_Ratio_On:   0
-Neg_Min_W_R:     0.05
-Neg_Max_W_R:     0.15
-Size_Length_On:  1
+Neg_Start_Y_R:   0.4
+Neg_End_Y_R:     1
+Size_Ratio_On:   1
+Neg_Min_W_R:     0.1
+Neg_Max_W_R:     0.7
+Size_Length_On:  0
 Neg_Min_W:       60
 Neg_Max_W:       200
