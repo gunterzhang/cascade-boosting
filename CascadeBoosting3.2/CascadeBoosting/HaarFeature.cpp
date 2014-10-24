@@ -103,8 +103,16 @@ int HaarFeature::loadCandid(FILE *fp)
 }
 
 
+int HaarFeature::copy(Feature *ptr_feature)
+{
+	this->info = ((HaarFeature *)ptr_feature)->info;
+	return 1;
+}
+
+
 int HaarFeature::loadFromModel(FILE *fp)
 {
+	fscanf(fp, "haar\n");
 	fscanf(fp, "%d %d %d %d %d %d %d %d %d %d %lf ",
 		   &info.tpl_size.x, &info.tpl_size.y,
 		   &info.type, &info.abs,
@@ -121,6 +129,7 @@ int HaarFeature::loadFromModel(FILE *fp)
 int HaarFeature::saveToModel(const string &file_path)
 {
 	FILE *fp = fopen(file_path.c_str(), "at");
+	fprintf(fp, "haar\n");
 	fprintf(fp, "%d %d %d %d %d %d %d %d %d %d %lf ",
 			info.tpl_size.x, info.tpl_size.y,
 			info.type, info.abs,

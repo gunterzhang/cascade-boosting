@@ -175,14 +175,14 @@ int FernFeatureHub::getAllFeatureInfos(int is_extract_feature)
 
 	for (int i=0; i<haar_num; i++)
 	{
-		//for (int j=i+1; j<haar_num; j++)
+		for (int j=i+1; j<haar_num; j++)
 		{
 			if (is_extract_feature == 1)
 			{
 				p_ferns[count].info.ptr_haars[0] = &(haar_hub.p_haars[i]);
 				p_ferns[count].info.haars_idx[0] = i;
-				//p_ferns[count].info.ptr_haars[1] = &(haar_hub.p_haars[j]);
-				//p_ferns[count].info.haars_idx[1] = j;
+				p_ferns[count].info.ptr_haars[1] = &(haar_hub.p_haars[j]);
+				p_ferns[count].info.haars_idx[1] = j;
 			}
 			count++;
 		}

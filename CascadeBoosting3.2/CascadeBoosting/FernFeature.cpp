@@ -78,9 +78,16 @@ int FernFeature::init(const FeatureParamT &init_param)
 }
 
 
+int FernFeature::copy(Feature *ptr_feature)
+{
+	info = ((FernFeature *)ptr_feature)->info;
+	return 1;
+}
+
+
 int FernFeature::loadFromModel(FILE *fp)
 {
-	fscanf(fp, "%d %d\n", &info.param.fern_cell_num, &info.param.bin_num);
+	fscanf(fp, "fern %d %d\n", &info.param.fern_cell_num, &info.param.bin_num);
 	for (int i=0; i<info.param.fern_cell_num; i++)
 	{
 		info.ptr_haars[i]->loadFromModel(fp);
@@ -92,7 +99,7 @@ int FernFeature::loadFromModel(FILE *fp)
 int FernFeature::saveToModel(const string &file_path)
 {
 	FILE *fp = fopen(file_path.c_str(), "at");
-	fprintf(fp, "%d %d\n", info.param.fern_cell_num, info.param.bin_num);
+	fprintf(fp, "fern %d %d\n", info.param.fern_cell_num, info.param.bin_num);
 	fclose(fp);
 
 	for (int i=0; i<info.param.fern_cell_num; i++)

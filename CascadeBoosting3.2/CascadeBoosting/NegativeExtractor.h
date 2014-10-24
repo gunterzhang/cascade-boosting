@@ -11,8 +11,8 @@ public:
 	NegativeExtractor(void);
 	~NegativeExtractor(void);
 
-	int init(TrainParamsT &param);
-	int extractSamples(int num, const PatternModel *model);
+	int init(TrainParamsT &param, const PatternModel *model);
+	int extractSamples(int num);
 	int getSampleNum(const string &path);
 
 private:

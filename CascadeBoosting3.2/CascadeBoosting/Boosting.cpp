@@ -166,7 +166,7 @@ int Boosting::learnOneWeakLearner(WeakLearner &weak_learner)
 		}
 	}
 
-	weak_learner.setFeature(p_ft_hub->getFeature(best_feature_idx));
+	weak_learner.copyFeature(p_ft_hub->getFeature(best_feature_idx));
 
 	memset(positive_hist, 0, bin_num * sizeof(positive_hist[0]));
 	memset(negative_hist, 0, bin_num * sizeof(negative_hist[0]));
@@ -179,7 +179,7 @@ int Boosting::learnOneWeakLearner(WeakLearner &weak_learner)
 	for (int i=0; i<negative_num; i++)
 	{
 		int binIndex = p_ft_hub->getNegFeatureIdx(i, best_feature_idx); 
-		negative_hist[binIndex] += negative_weights[i]; 
+		negative_hist[binIndex] += negative_weights[i];
 	}
 
 	for (int i=0; i<bin_num; i++)
@@ -226,6 +226,26 @@ int Boosting::updateWeights(const WeakLearner &weak_learner, int iteration_idx)
 		negative_weights[i] *= exp(value);
 		weight_sum += negative_weights[i];
 	}
+
+	string weight_path = ptr_params->work_dir + "\\pw.txt";
+
+	FILE *fp = fopen(weight_path.c_str(), "wt");
+	for (int i=0; i<positive_num; i++)
+	{
+		positive_weights[i] /= weight_sum;
+		fprintf(fp, "%lf\n", positive_weights[i]);
+	}
+	fclose(fp);
+
+	weight_path = ptr_params->work_dir + "\\nw.txt";
+	fp = fopen(weight_path.c_str(), "wt");
+	for (int i=0; i<negative_num; i++)
+	{
+		negative_weights[i] /= weight_sum;
+		fprintf(fp, "%lf\n", negative_weights[i]);
+	}
+	fclose(fp);
+
 	return 1;
 }
 
@@ -259,6 +279,12 @@ double Boosting::getStrongLearnerThd(const PatternModel &model)
 	}
 	double thd = adjustThreshold(ptr_params->detection_rates[0], ptr_params->false_alarms[0]);
 	printf("Detection Rate:%lf;    False alarm Rate:%lf\n", detection_rate, false_alarm);
+
+	string log_path = ptr_params->work_dir + "\\train_log.txt"; 
+	FILE *fp = fopen(log_path.c_str(), "at");
+	fprintf(fp, "Detection Rate:%lf;    False alarm Rate:%lf\n", detection_rate, false_alarm);
+	fclose(fp);
+
 	return thd;
 }
 

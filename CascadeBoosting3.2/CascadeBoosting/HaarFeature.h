@@ -85,6 +85,7 @@ public:
 	HaarFeature(void);
 	~HaarFeature(void);
 
+	int copy(Feature *ptr_feature);
 	int loadCandid(FILE *fp);
 	int loadFromModel(FILE *fp);
 	int saveToModel(const string &file_path);

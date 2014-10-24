@@ -38,6 +38,7 @@ public:
 	~FernFeature(void);
 
 	int init(const FeatureParamT &init_param);
+	int copy(Feature *ptr_feature);
 	int loadFromModel(FILE *fp);
 	int saveToModel(const string &file_path);
 	int computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin) const;

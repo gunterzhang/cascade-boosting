@@ -10,6 +10,7 @@ public:
 	virtual ~WeakLearner(void);
 
 	int setFeature(Feature *ptr_feature);
+	int copyFeature(Feature *ptr_feature);
 	double test(const IntegralImage &intg, const SubwinInfoT &subwin);
 
 	int loadFromModel(const FILE *fp);

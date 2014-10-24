@@ -4,4 +4,4 @@ TemplateHeight:  48
 FeatureType:     1
 FeatureAbs:      0
 IsFromCandid:    0
-CandidPath:      E:\ChainBoosting_Train\01-Train\CascadeBoosting3.7\x64\Debug\config\haar.candid
+CandidPath:      E:\ChainBoosting_Train\01-Train\CascadeBoosting3.7\x64\Release\config\haar.candid

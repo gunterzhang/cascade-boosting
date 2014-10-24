@@ -13,7 +13,7 @@ using namespace cv;
 
 const int MAX_CASCADE_STAGE_NUM = 25;
 const int MAX_ROUND_NUM = 200;
-const int MAX_BIN_NUM = 500;
+const int MAX_BIN_NUM = 5000;
 const int MAX_NEG_SAMPLE_NUM = 20000;
 const int MAX_LABEL_PER_IMAGE = 20;
 const int MAX_PATH_LEN = 500;

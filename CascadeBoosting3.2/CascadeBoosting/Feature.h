@@ -30,6 +30,7 @@ public:
 	Feature(void);
 	virtual ~Feature(void);
 
+	virtual int copy(Feature *ptr_feature) = 0;
 	virtual int loadFromModel(FILE *fp) = 0;
 	virtual int saveToModel(const string &file_path) = 0;
 	virtual int computeFeature(const IntegralImage &intg, const SubwinInfoT &subwin) const{return 1;};

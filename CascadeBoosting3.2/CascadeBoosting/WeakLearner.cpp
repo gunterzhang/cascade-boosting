@@ -19,13 +19,22 @@ int WeakLearner::setFeature(Feature *ptr_feature)
 }
 
 
+int WeakLearner::copyFeature(Feature *ptr_feature)
+{
+	this->ptr_feature->copy(ptr_feature);
+	return 1;
+}
+
+
 int WeakLearner::saveToModel(const string &file_path)
 {
 	ptr_feature->saveToModel(file_path);
 
 	FILE *fp = fopen(file_path.c_str(), "at");
+	
+	int bin_num = ptr_feature->getBinNum();
 
-	for (int i=0; i<ptr_feature->getBinNum(); i++)
+	for (int i=0; i<bin_num; i++)
 	{
 		fprintf(fp, "%lf ", output[i]);
 	}
@@ -41,7 +50,9 @@ int WeakLearner::loadFromModel(const FILE *fp)
 {
 	ptr_feature->loadFromModel((FILE *)fp);
 
-	for (int i=0; i<ptr_feature->getBinNum(); i++)
+	int bin_num = ptr_feature->getBinNum();
+
+	for (int i=0; i<bin_num; i++)
 	{
 		fscanf((FILE *)fp, "%lf ", &(output[i]));
 	}

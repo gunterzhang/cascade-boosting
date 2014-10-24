@@ -1,4 +1,4 @@
-FernCellNum:     1
+FernCellNum:     2
 IsFromCandid:    0
 CandidPath:      E:\ChainBoosting_Train\01-Train\CascadeBoosting3.7\x64\Debug\config\fern.candid
 HaarBinNum:      50

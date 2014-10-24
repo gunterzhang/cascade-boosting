@@ -45,6 +45,12 @@ int Cascade::train()
 	{
 		printf( "===========  Training stage:%d, round:%d  ===========\n", 
 			    (model.stage_num + 1), (model.weak_learner_num + 1) );
+		
+		string log_path = ptr_params->work_dir + "\\train_log.txt"; 
+		FILE *fp = fopen(log_path.c_str(), "at");
+		fprintf(fp, "===========  Training stage:%d, round:%d  ===========\n", 
+			    (model.stage_num + 1), (model.weak_learner_num + 1) );
+		fclose(fp);
 
 		if (is_new_stage > 0)
 		{
@@ -82,11 +88,11 @@ int Cascade::trainInit()
 	else if (ptr_params->feature_type == FeatureTypeE::HAAR)
 		ptr_params->ft_config_path = ptr_params->config_dir + "haar_feature.txt";
 
-	rst = neg_extractor.init(*ptr_params);
-	if (rst <= 0) return rst;
-
 	model.init(ptr_params);
 	model.saveToModel(ptr_params->model_path);
+
+	rst = neg_extractor.init(*ptr_params, &model);
+	if (rst <= 0) return rst;
 
 	printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
 	return 1;
@@ -124,10 +130,11 @@ int Cascade::extractNegativeSamples()
 	int aim_num = max(ptr_params->min_negative_num, ptr_params->positive_num); 
 	int diff_num = aim_num - ptr_params->negative_num;
 
-	if (diff_num < 0) return 0;
-
-	ptr_params->negative_num += neg_extractor.extractSamples(diff_num, &model);
-
+	double rate = (double)diff_num / (double)ptr_params->positive_num;
+	if (rate > 0.01)
+	{
+		ptr_params->negative_num += neg_extractor.extractSamples(diff_num);
+	}
 	return 1;
 }
 

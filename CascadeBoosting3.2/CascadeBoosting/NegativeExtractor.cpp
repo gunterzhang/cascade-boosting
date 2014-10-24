@@ -4,6 +4,7 @@
 #include "NegativeExtractor.h"
 using namespace std;
 
+
 NegativeExtractor::NegativeExtractor(void)
 {
 }
@@ -14,7 +15,7 @@ NegativeExtractor::~NegativeExtractor(void)
 }
 
 
-int NegativeExtractor::init(TrainParamsT &params)
+int NegativeExtractor::init(TrainParamsT &params, const PatternModel *model)
 {
 	ptr_params = &params;
 
@@ -53,27 +54,31 @@ int NegativeExtractor::init(TrainParamsT &params)
 	fclose(fp);
 
 	postive_label = params.class_label;
-	return 1;
-}
 
-
-int NegativeExtractor::extractSamples(int needed_num, const PatternModel *model)
-{
 	ptr_model = (PatternModel *)model;
 	CB_PointT tpl_size = model->p_ft_param->getTemplateSize();
 
 	scan_shift_step = tpl_size.x * 2;
 	scan_scale_step = 3.0;
 
-	static int is_last = 0;
 	detector.init(ptr_model);
+
+	return 1;
+}
+
+
+int NegativeExtractor::extractSamples(int needed_num)
+{
+	static int is_last = 0;
 
 	int added_sum = 0;
 	detect_count = 0;
 	total_count = 0;
+	int image_count = 0;
 
 	while (needed_num > 0)
 	{
+		image_count++;
 		string image_path = ptr_params->negative_pool_dir + image_file_names[pool_image_idx];
 		string label_path = image_path;
 		string::size_type pos = label_path.find(".jpg");
@@ -102,6 +107,16 @@ int NegativeExtractor::extractSamples(int needed_num, const PatternModel *model)
 		needed_num -= detect_num;
 		printf("needed_num = %d\n", needed_num);
 		
+		string log_path = ptr_params->work_dir + "\\train_log.txt"; 
+		FILE *fp = fopen(log_path.c_str(), "at");
+		fprintf(fp, "Extract From : %s\n", image_path.c_str());
+		fprintf(fp, "shift_step = %lf, scale_step = %lf\n", scan_shift_step, scan_scale_step);
+		fprintf(fp, "Extract negetive sample number:%d\n", detect_num);
+		fprintf(fp, "needed_num = %d\n", needed_num);
+		fclose(fp);
+
+		printf("negative: %d - %d\n", pool_image_idx, pool_image_num);
+
 		if (pool_image_idx >= pool_image_num)
 		{
 			if (scan_shift_step < 1.01 && scan_scale_step < 1.2)
